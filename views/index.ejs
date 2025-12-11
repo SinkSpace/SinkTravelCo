@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SinkTravel</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <nav>
+    <p><img id="icon" src="/images/Group 16.svg"></p>
+<!--    <% if (user) { %>
+      <p>Здравствуйте, <%= user.username %>! <button onclick="window.location.href='/logout'">Выйти</button></p>
+    <% } else { %>
+      <p><button onclick="window.location.href='/login'">Войти</button></p>
+    <% } %> -->
+  </nav>
+
+  <div class="tours-container">
+    <% if (tours && tours.length > 0) { %>
+      <% tours.forEach(tour => { %>
+        <div class="tour-card">
+          <h2><%= tour.name %></h2>
+          <p class="tour-description"><%= tour.description || 'Нет описания' %></p>
+          <% if (tour.image) { %>
+            <img src="<%= tour.image %>" alt="<%= tour.name %>" class="tour-image">
+          <% } else { %>
+            <div class="tour-image-placeholder">Нет изображения</div>
+          <% } %>
+          <p><strong>Длительность:</strong> <%= tour.duration %> суток</p>
+          <p><strong>Место:</strong> <%= tour.City.name %>, <%= tour.Hotel.name %></p>
+          
+          <div class="tour-meta">
+            <div class="tour-price"><%= tour.price.toFixed(2) %>₽</div>
+            <div class="tour-client">Забронировано: <%= tour.Client ? tour.Client.name : 'Не указан' %></div>
+          </div>
+        
+          <% if (user && user.role === 'admin') { %>
+            <div class="admin-actions">
+              <form action="/delete-tour/<%= tour.id %>" method="POST" style="display:inline;">
+                <button type="submit" class="delete-btn">Удалить</button>
+              </form>
+              <button onclick="window.location.href='/edit-tour/<%= tour.id %>'" class="edit-btn">Изменить</button>
+            </div>
+          <% } %>
+        </div>
+      <% }); %>
+    <% } else { %>
+      <div class="no-tours">
+        <p>Пока нет доступных туров</p>
+      </div>
+    <% } %>
+  </div>
+
+  <% if (user && user.role === 'admin') { %>
+    <div class="buttons">
+      <button onclick="window.location.href='/add-tour'">Добавить тур</button>
+      <button onclick="window.location.href='/add-city'">Добавить город</button>
+      <button onclick="window.location.href='/add-hotel'">Добавить отель</button>
+      <button onclick="window.location.href='/add-client'">Добавить клиента</button>
+    </div> 
+  <% } %>
+</body>
+</html>
