@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Подобрать тур</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <nav>
+    <p><img id="icon" src="/images/icon.svg">
+    <button id="takeTour">Подобрать тур</button></p>
+    <% if (user) { %>
+      <p><img id="active" src="/images/search.svg">
+      <img id="active" src="/images/cart.svg">
+      <img id="active" src="/images/profile.svg" onclick="window.location.href='/logout'"></p>
+    <% } else { %>
+      <p>
+        <img id="active" src="/images/search.svg">
+        <button onclick="window.location.href='/login'">Войти</button>
+      </p>
+    <% } %>
+  </nav>
+
+  <main class="search-page">
+
+    <h1 class="page-title" id="name">
+      <% if (tours && tours.length > 0) { %>
+        Найдено <%= tours.length %> <%= getTourWord(tours.length) %>
+      <% } else { %>
+        Подбор тура
+      <% } %>
+    </h1>
+
+    <div class="search-wrapper">
+
+      <form action="/search" method="POST" class="filter-panel">
+
+  <section><label>
+    Пункт назначения
+    <select name="cityId">
+      <option value="">Любой</option>
+      <% cities.forEach(city => { %>
+        <option value="<%= city.id %>"><%= city.name %></option>
+      <% }) %>
+    </select>
+  </label></section>
+
+  <section><label>
+    Дата вылета
+    <input type="date" name="startDate">
+  </label></section>
+
+  <section><label>
+    Срок
+    <input type="number" name="duration" placeholder="Количество дней" min="1">
+  </label></section>
+
+  <section><label>
+    Стоимость от
+    <input type="number" name="minPrice" placeholder="0">
+  </label></section>
+
+  <section><label>
+    Тип питания
+    <select name="meal">
+      <option value="">Любой</option>
+      <option>BB</option>
+      <option>HB</option>
+      <option>FB</option>
+      <option>AI</option>
+    </select>
+  </label></section>
+
+  <section><label>
+    Тип отдыха
+    <select name="type">
+      <option value="">Любой</option>
+      <option value="Пляжный">Пляжный</option>
+      <option value="Экскурсионный">Экскурсионный</option>
+      <option value="Активный">Активный</option>
+    </select>
+  </label></section>
+
+  <section><label>
+    Тип отеля
+    <select name="hotelType">
+      <option value="">Любой</option>
+      <option value="Апартаменты">Апартаменты</option>
+      <option value="Отель">Отель</option>
+      <option value="Вилла">Вилла</option>
+      <option value="Гостевой дом">Гостевой дом</option>
+    </select>
+  </label></section>
+
+  <section><label>
+    Отель
+    <select name="hotelId">
+      <option value="">Любой</option>
+      <% hotels.forEach(h => { %>
+        <option value="<%= h.id %>"><%= h.name %></option>
+      <% }) %>
+    </select>
+  </label></section>
+
+  <section><label>
+    Стоимость до
+    <input type="number" name="maxPrice" placeholder="100000">
+  </label></section>
+
+  <button type="submit" class="btn-primary">Найти</button>
+</form>
+
+  <div class="tours-container">
+  <% if (tours && tours.length > 0) { %>
+    <% tours.forEach(tour => { %>
+    <a href="/tour/<%= tour.id %>" class="tour-link">
+      <div class="tour-card">
+        <div class="tour-content">
+          <img src="/images/abkhazia.png" class="tour-image">
+          <div class="tour-info">
+            <h2><%= tour.name %></h2>
+            <p class="tour-description"><%= tour.description || 'Нет описания' %></p>
+            <div class="bottom-panel">
+              <div class="tour-price"><%= tour.price.toFixed(2) %>₽</div>
+              <div><button>Купить</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </a>
+    <% }); %>
+  <% } else { %>
+    <div class="no-tours">
+      <p>Пока нет доступных туров</p>
+    </div>
+  <% } %>
+</div>
+
+    </div>
+
+  </main>
+
+    <footer>
+    <p>©SinkTravel
+    <a href="/catalog">Каталог</a>
+    <a href="/search">Подобрать тур</a>
+    <a href="/cart">Корзина</a>
+    <a href="">Поиск</a>
+    <a href="/profile">Профиль</a></p>
+  </footer>
+  
+  <script>
+    // Функция для правильного склонения слова "результат"
+    function getTourWord(count) {
+      if (count % 10 === 1 && count % 100 !== 11) {
+        return 'результат';
+      } else if (count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 10 || count % 100 >= 20)) {
+        return 'результата';
+      } else {
+        return 'результатов';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -8,38 +8,79 @@
 </head>
 <body>
   <nav>
-    <p><img id="icon" src="/images/icon.svg">
-    <button id="takeTour">Подобрать тур</button></p>
+    <p>
+      <img id="icon" src="/images/icon.svg">
+      <button id="takeTour">Подобрать тур</button>
+    </p>
     <% if (user) { %>
-      <p><img id="active" src="/images/search.svg">
+    <p>
+      <img id="active" src="/images/search.svg">
       <img id="active" src="/images/cart.svg">
-      <img id="active" src="/images/profile.svg" onclick="window.location.href='/logout'"></p>
+      <img id="active" src="/images/profile.svg" onclick="window.location.href='/logout'">
+    </p>
     <% } else { %>
-      <p>
-        <img id="active" src="/images/search.svg">
-        <button onclick="window.location.href='/login'">Войти</button>
-      </p>
+    <p>
+      <img id="active" src="/images/search.svg">
+      <button onclick="window.location.href='/login'">Войти</button>
+    </p>
     <% } %>
   </nav>
 
   <div class="tour-detail-container">
-    <h1><%= tour.name %></h1>
-    <img src="/images/abkhazia.png" class="tour-image-large">
-    <p><strong>Описание:</strong> <%= tour.description %></p>
-    <p><strong>Цена:</strong> <%= tour.price.toFixed(2) %>₽</p>
-    <p><strong>Город:</strong> <%= tour.City.name %></p>
-    <p><strong>Отель:</strong> <%= tour.Hotel.name %></p>
-    <p><strong>Длительность:</strong> <%= tour.duration %> дней</p>
-    <button>Купить</button>
+    <section>
+      <img src="/images/abkhazia.png" class="tour-image-large">
+    </section>
+
+    <section>
+      <h1><%= tour.name %></h1>
+      <p><strong>Описание:</strong> <%= tour.description %></p>
+
+      <div id="cardTable">
+        <section>
+          <h3>Тип</h3>
+          <p><%= tour.type || 'не указано' %></p>
+        </section>
+        <section>
+          <h3>Виза</h3>
+          <p><%= tour.visaRequired ? 'Нужна' : 'Не нужна' %></p>
+        </section>
+        <section>
+          <h3>Перелёт</h3>
+          <p><%= tour.flightType || 'не указан' %></p>
+        </section>
+      </div>
+
+      <div id="cardTable">
+        <section>
+          <h3>Цены на месте</h3>
+          <p><%= tour.onSpotPriceType || 'не указано' %></p>
+        </section>
+        <section>
+          <h3>Время поездки</h3>
+          <p><%= tour.tripTime || 'не указано' %></p>
+        </section>
+        <section>
+          <h3>Особенность</h3>
+          <p><%= tour.features || 'не указано' %></p>
+        </section>
+      </div>
+
+      <div class="bottom-panel">
+        <div class="tour-price"><%= tour.price.toFixed(2) %>₽</div>
+        <div><button>Купить</button></div>
+      </div>
+    </section>
   </div>
 
   <footer>
-    <p>©SinkTravel
-    <a href="/catalog">Каталог</a>
-    <a href="/take-tour">Подобрать тур</a>
-    <a href="/cart">Корзина</a>
-    <a href="/search">Поиск</a>
-    <a href="/profile">Профиль</a></p>
+    <p>
+      ©SinkTravel
+      <a href="/catalog">Каталог</a>
+      <a href="/take-tour">Подобрать тур</a>
+      <a href="/cart">Корзина</a>
+      <a href="/search">Поиск</a>
+      <a href="/profile">Профиль</a>
+    </p>
   </footer>
 </body>
 </html>

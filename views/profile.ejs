@@ -136,7 +136,7 @@
       </div>
       <div id="bookings" class="tab-content">
         <h2>Бронирования</h2>
-          <div class="tours-container">
+          <div class="tours-container" style="display: inline;">
           <% if (tours && tours.length > 0) { %>
             <% tours.slice(0, 2).forEach(tour => { %>
             <div class="tour-card">
@@ -167,7 +167,7 @@
       </div>
       <div id="history" class="tab-content">
         <h2>История</h2>
-          <div class="tours-container">
+          <div class="tours-container" style="display: inline;">
           <% if (tours && tours.length > 0) { %>
             <% tours.slice(0, 2).forEach(tour => { %>
             <div class="tour-card">

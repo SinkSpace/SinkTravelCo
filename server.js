@@ -1,180 +1,289 @@
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
-const { Sequelize, DataTypes } = require('sequelize');
-const { sequelize, User, City, Hotel, Client, Tour } = require('./models');
+
+const { sequelize, User, City, Hotel, Tour, Booking } = require('./models');
 
 const app = express();
 const PORT = 3000;
 
-// ---------------------- БД ----------------------
-const sequelize = new Sequelize({
-  dialect: 'sqlite',
-  storage: './db.sqlite'
-});
-
-// ---------------------- МОДЕЛИ ----------------------
-const User = sequelize.define('User', {
-  username: { type: DataTypes.STRING, unique: true, allowNull: false },
-  password: { type: DataTypes.STRING, allowNull: false },
-  role: { type: DataTypes.ENUM('admin','client'), defaultValue: 'client' },
-  firstName: DataTypes.STRING,
-  lastName: DataTypes.STRING,
-  middleName: DataTypes.STRING,
-  email: { type: DataTypes.STRING, unique: true },
-  phone: DataTypes.STRING,
-  birthDate: DataTypes.DATEONLY,
-  gender: DataTypes.ENUM('male','female','other')
-});
-
-const City = sequelize.define('City', {
-  name: { type: DataTypes.STRING, allowNull: false },
-  country: { type: DataTypes.STRING, allowNull: false }
-});
-
-const Hotel = sequelize.define('Hotel', {
-  name: { type: DataTypes.STRING, allowNull: false },
-  stars: DataTypes.INTEGER,
-  address: DataTypes.STRING
-});
-
-const Tour = sequelize.define('Tour', {
-  name: { type: DataTypes.STRING, allowNull: false },
-  description: DataTypes.TEXT,
-  price: { type: DataTypes.FLOAT, allowNull: false },
-  duration: DataTypes.INTEGER,
-  type: DataTypes.ENUM('экскурсия','пляж','горнолыжный','круиз','комбинированный'),
-  visaRequired: { type: DataTypes.BOOLEAN, defaultValue: false },
-  flightType: DataTypes.ENUM('самолет','поезд','автобус','комбинированный'),
-  onSpotPriceType: DataTypes.ENUM('наличные','карта','любой'),
-  tripTime: DataTypes.STRING,
-  features: DataTypes.TEXT,
-  foodType: DataTypes.ENUM('без питания','завтрак','полупансион','полный пансион','всё включено'),
-  rating: { type: DataTypes.FLOAT, defaultValue: 0 }
-});
-
-const Booking = sequelize.define('Booking', {
-  status: { type: DataTypes.ENUM('ожидает','подтверждено','отменено'), defaultValue: 'ожидает' },
-  totalPrice: DataTypes.FLOAT,
-  paid: { type: DataTypes.BOOLEAN, defaultValue: false }
-});
-
-// ---------------------- СВЯЗИ ----------------------
-Tour.belongsTo(City);
-Tour.belongsTo(Hotel);
-Booking.belongsTo(User);
-Booking.belongsTo(Tour);
-User.hasMany(Booking);
-Tour.hasMany(Booking);
+// ---------------------- HELPER FUNCTIONS ----------------------
+// Функция для правильного склонения слова "результат"
+function getTourWord(count) {
+  if (count % 10 === 1 && count % 100 !== 11) {
+    return 'результат';
+  } else if (count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 10 || count % 100 >= 20)) {
+    return 'результата';
+  } else {
+    return 'результатов';
+  }
+}
 
 // ---------------------- MIDDLEWARE ----------------------
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
 app.use(session({
   secret: 'SinkSpace',
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: { secure: false }
 }));
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Простая авторизация (для теста)
-app.use(async (req,res,next)=>{
-  if(req.session.userId){
+// Подгружаем пользователя (если авторизован)
+app.use(async (req, res, next) => {
+  if (req.session.userId) {
     req.user = await User.findByPk(req.session.userId);
+  } else {
+    req.user = null;
   }
   res.locals.user = req.user;
   next();
 });
 
 // ---------------------- ROUTES ----------------------
-app.get('/', async (req,res)=>{
-  const tours = await Tour.findAll({ limit: 10, order: [['id','ASC']] });
-  res.render('index',{ tours });
-});
 
-app.get('/login',(req,res)=>res.render('login'));
-app.post('/login', async (req,res)=>{
-  const { username, password } = req.body;
-  const user = await User.findOne({ where: { username, password }});
-  if(user){
-    req.session.userId = user.id;
-    return res.redirect('/');
-  }
-  res.send('Неверный логин/пароль');
-});
-
-app.get('/logout',(req,res)=>{
-  req.session.destroy(()=>res.redirect('/'));
-});
-
-app.get('/catalog', async (req,res) => {
-  const tours = await Tour.findAll({ limit: 20, order: [['id','ASC']] });
-  res.render('catalog', { tours, user: req.user });
-});
-
-app.get('/profile', async (req,res)=>{
-  if(!req.user) return res.redirect('/login');
-  const tours = await Tour.findAll({ limit: 10 });
-  res.render('profile',{ tours });
-});
-
-app.get('/tour/:id', async (req, res) => {
-  const tour = await Tour.findByPk(req.params.id, {
-    include: [City, Hotel, Client] // если нужно выводить связанные данные
+// Главная
+app.get('/', async (req, res) => {
+  const tours = await Tour.findAll({
+    limit: 6,
+    order: [['id', 'ASC']],
+    include: [City, Hotel]
   });
-  if (!tour) return res.status(404).send('Тур не найден');
-  res.render('tour', { tour, user: req.user });
+
+  res.render('index', { tours });
 });
 
-// ---------------------- SYNC & ТЕСТОВЫЕ ДАННЫЕ ----------------------
-(async ()=>{
-  try{
+// Каталог
+app.get('/catalog', async (req, res) => {
+  const tours = await Tour.findAll({ include: [City, Hotel] });
+  res.render('catalog', { tours });
+});
+
+// Страница тура
+app.get('/tour/:id', async (req, res) => {
+  const tour = await Tour.findByPk(req.params.id, { include: [City, Hotel] });
+
+  if (!tour) return res.status(404).render('404');
+
+  res.render('tour', { tour });
+});
+
+// Профиль
+app.get('/profile', async (req, res) => {
+  if (!req.user) return res.redirect('/login');
+
+  const tours = await Tour.findAll({
+    limit: 10,
+    include: [City, Hotel]
+  });
+
+  res.render('profile', {
+    user: req.user,
+    tours
+  });
+});
+
+// Корзина
+app.get('/cart', (req, res) => res.render('cart'));
+
+// Подобрать тур (старая версия - можно удалить если не используется)
+app.get('/take-tour', async (req, res) => {
+  try {
+    const cities = await City.findAll();
+    const hotels = await Hotel.findAll();
+    const tours = await Tour.findAll({ include: [City, Hotel] });
+
+    res.render('take-tour', { 
+      cities, 
+      hotels, 
+      tours,
+      getTourWord 
+    });
+  } catch (err) {
+    console.error('Ошибка загрузки страницы Подобрать тур:', err);
+    res.status(500).render('error', {
+      message: 'Не удалось загрузить страницу Подобрать тур',
+      title: 'Ошибка'
+    });
+  }
+});
+
+// Поиск/подбор тура (GET запрос)
+app.get('/search', async (req, res) => {
+  try {
+    const cities = await City.findAll();
+    const hotels = await Hotel.findAll();
+    const tours = await Tour.findAll({ include: [City, Hotel] });
+
+    res.render('search', { 
+      cities, 
+      hotels, 
+      tours,
+      getTourWord // передаем функцию в шаблон
+    });
+  } catch (err) {
+    console.error('Ошибка загрузки страницы Подбора тура:', err);
+    res.status(500).render('error', {
+      message: 'Не удалось загрузить страницу Подбора тура',
+      title: 'Ошибка'
+    });
+  }
+});
+
+// Поиск/подбор тура (POST запрос - фильтрация)
+app.post('/search', async (req, res) => {
+  try {
+    const { cityId, hotelId, minPrice, maxPrice, startDate, duration, meal, type, hotelType } = req.body;
+
+    const where = {};
+
+    if (cityId) where.CityId = cityId;
+    if (hotelId) where.HotelId = hotelId;
+    
+    // Фильтр по цене
+    if (minPrice || maxPrice) {
+      where.price = {};
+      if (minPrice) where.price.gte = Number(minPrice);
+      if (maxPrice) where.price.lte = Number(maxPrice);
+    }
+    
+    // Фильтр по дате начала (если нужно)
+    if (startDate) {
+      // Здесь можно добавить логику фильтрации по дате
+      // зависит от структуры вашей модели Tour
+    }
+    
+    // Фильтр по продолжительности
+    if (duration) {
+      where.duration = duration;
+    }
+    
+    // Фильтр по типу питания
+    if (meal) {
+      where.mealType = meal;
+    }
+    
+    // Фильтр по типу отдыха
+    if (type) {
+      where.tourType = type;
+    }
+    
+    // Фильтр по типу отеля (нужно добавить поле hotelType в модель Tour)
+    if (hotelType) {
+      // where.hotelType = hotelType;
+    }
+
+    const tours = await Tour.findAll({
+      where,
+      include: [City, Hotel]
+    });
+
+    const cities = await City.findAll();
+    const hotels = await Hotel.findAll();
+
+    res.render('search', { 
+      cities, 
+      hotels, 
+      tours,
+      getTourWord // передаем функцию в шаблон
+    });
+  } catch (err) {
+    console.error('Ошибка при поиске туров:', err);
+    res.status(500).render('error', {
+      message: 'Не удалось выполнить поиск туров',
+      title: 'Ошибка поиска'
+    });
+  }
+});
+
+// ---------------------- AUTH ----------------------
+
+// Login page
+app.get('/login', (req, res) => res.render('login'));
+
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  const user = await User.findOne({ where: { username, password } });
+
+  if (!user) {
+    return res.render('login', { error: 'Неверный логин/пароль' });
+  }
+
+  req.session.userId = user.id;
+  res.redirect('/');
+});
+
+// Logout
+app.get('/logout', (req, res) => {
+  req.session.destroy(() => res.redirect('/'));
+});
+
+// Register page
+app.get('/register', (req, res) => res.render('register'));
+
+app.post('/register', async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const newUser = await User.create({ username, password });
+    req.session.userId = newUser.id;
+    res.redirect('/');
+  } catch (err) {
+    res.render('register', { error: 'Ошибка регистрации' });
+  }
+});
+
+// ---------------------- ADMIN FORMS ----------------------
+app.get('/add-city', (req, res) => res.render('add-city'));
+app.get('/add-client', (req, res) => res.render('add-client'));
+app.get('/add-hotel', (req, res) => res.render('add-hotel'));
+app.get('/add-tour', (req, res) => res.render('add-tour'));
+
+app.get('/edit-tour/:id', async (req, res) => {
+  const tour = await Tour.findByPk(req.params.id);
+  if (!tour) return res.status(404).render('404');
+  res.render('edit-tour', { tour });
+});
+
+// ---------------------- 404 ----------------------
+app.use((req, res) => res.status(404).render('404'));
+
+// ---------------------- DB INIT ----------------------
+(async () => {
+  try {
     await sequelize.sync({ force: true });
 
-    // Города
     const [moscow, paris] = await City.bulkCreate([
-      { name:'Москва', country:'Россия' },
-      { name:'Париж', country:'Франция' }
-    ], { returning:true });
+      { name: 'Москва', country: 'Россия' },
+      { name: 'Париж', country: 'Франция' }
+    ], { returning: true });
 
-    // Отели
     const [hotelMoscow, hotelParis] = await Hotel.bulkCreate([
-      { name:'Отель Москва', stars:5, address:'ул. Тверская,1' },
-      { name:'Отель Париж', stars:4, address:'ул. Елисейские поля,10' }
-    ], { returning:true });
+      { name: 'Отель Москва', stars: 5, address: 'ул. Тверская, 1' },
+      { name: 'Отель Париж', stars: 4, address: 'ул. Елисейские поля, 10' }
+    ], { returning: true });
 
-    // Пользователи
-    const [admin, client] = await User.bulkCreate([
-      { username:'admin', password:'adminpass', role:'admin', firstName:'Админ', lastName:'Админов', email:'admin@example.com' },
-      { username:'client', password:'clientpass', role:'client', firstName:'Иван', lastName:'Иванов', email:'ivan@example.com' }
-    ], { individualHooks:true, returning:true });
-
-    // Туры
-    await Tour.bulkCreate([
-      {
-        name:'Экскурсия по Москве',
-        description:'Обзорная экскурсия по главным достопримечательностям Москвы.',
-        price:15000.0, duration:3, type:'экскурсия', visaRequired:false,
-        flightType:'автобус', onSpotPriceType:'наличные', tripTime:'лето',
-        features:'гид, трансфер', foodType:'завтрак', rating:4.7,
-        CityId: moscow.id, HotelId: hotelMoscow.id
-      },
-      {
-        name:'Романтический Париж',
-        description:'Тур для влюблённых по самому романтичному городу мира.',
-        price:45000.0, duration:7, type:'комбинированный', visaRequired:true,
-        flightType:'самолет', onSpotPriceType:'карта', tripTime:'весна',
-        features:'гид, ужин при свечах', foodType:'полный пансион', rating:4.9,
-        CityId: paris.id, HotelId: hotelParis.id
-      }
+    await User.bulkCreate([
+      { username: 'admin', password: 'adminpass', role: 'admin' },
+      { username: 'client', password: 'clientpass', role: 'client' }
     ]);
 
-    app.listen(PORT,()=>console.log(`Server running at http://localhost:${PORT}`));
-  }catch(e){
-    console.error(e);
+    await Tour.bulkCreate([
+      { name: 'Экскурсия по Москве', description: 'Обзорная экскурсия', price: 15000, duration: 3, CityId: moscow.id, HotelId: hotelMoscow.id },
+      { name: 'Романтический Париж', description: 'Тур для влюблённых', price: 45000, duration: 7, CityId: paris.id, HotelId: hotelParis.id }
+    ]);
+
+    app.listen(PORT, () =>
+      console.log(`Server running at http://localhost:${PORT}`)
+    );
+
+  } catch (err) {
+    console.error(err);
   }
 })();
