@@ -1,75 +1,64 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-        .tour { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px; }
-        .btn { padding: 8px 15px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
-        .btn:hover { background: #0056b3; }
-        .nav { margin-bottom: 20px; }
-        .nav a { margin-right: 15px; text-decoration: none; color: #007bff; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SinkTravel</title>
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-    <div class="nav">
-        <a href="/">Главная</a>
-        <a href="/catalog">Каталог</a>
-        <% if (user) { %>
-            <a href="/cart">Корзина</a>
-            <a href="/profile">Профиль</a>
-            <a href="/logout">Выйти</a>
-        <% } else { %>
-            <a href="/login">Войти</a>
-            <a href="/register">Регистрация</a>
-        <% } %>
-    </div>
-
-    <h1>Каталог туров</h1>
-    
-    <% if (tours && tours.length > 0) { %>
-        <% tours.forEach(tour => { %>
-            <div class="tour">
-                <h3><%= tour.name %></h3>
-                <p><strong>Описание:</strong> <%= tour.description %></p>
-                <p><strong>Цена:</strong> <%= tour.price %> руб.</p>
-                <p><strong>Длительность:</strong> <%= tour.duration %> дней</p>
-                <p><strong>Город:</strong> <%= tour.City.name %>, <%= tour.City.country %></p>
-                <p><strong>Отель:</strong> <%= tour.Hotel.name %> (<%= tour.Hotel.stars %>★)</p>
-                
-                <% if (user) { %>
-                    <button class="btn" onclick="addToCart( tour.id )">Добавить в корзину</button>
-                <% } else { %>
-                    <p><a href="/login">Войдите</a>, чтобы добавить в корзину</p>
-                <% } %>
-            </div>
-        <% }); %>
+  <nav>
+    <p><img id="icon" src="/images/icon.svg">
+    <button id="takeTour">Подобрать тур</button></p>
+    <% if (user) { %>
+      <p><img id="active" src="/images/search.svg">
+      <img id="active" src="/images/cart.svg">
+      <img id="active" src="/images/profile.svg" onclick="window.location.href='/logout'"></p>
     <% } else { %>
-        <p>Туры не найдены</p>
+      <p>
+        <img id="active" src="/images/search.svg">
+        <button onclick="window.location.href='/login'">Войти</button>
+      </p>
     <% } %>
+  </nav>
 
-    <script>
-        async function addToCart(tourId) {
-            try {
-                const response = await fetch(`/cart/add/${tourId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
-                
-                const result = await response.json();
-                if (result.success) {
-                    alert('Тур добавлен в корзину!');
-                } else {
-                    alert('Ошибка: ' + result.message);
-                }
-            } catch (error) {
-                alert('Ошибка при добавлении в корзину');
-            }
-        }
-    </script>
+  <div id="name"><h1>Каталог</h1></div>
+
+  <div class="tours-container">
+  <% if (tours && tours.length > 0) { %>
+    <% tours.forEach(tour => { %>
+    <a href="/tour/<%= tour.id %>" class="tour-link">
+      <div class="tour-card">
+        <div class="tour-content">
+          <img src="/images/abkhazia.png" class="tour-image">
+          <div class="tour-info">
+            <h2><%= tour.name %></h2>
+            <p class="tour-description"><%= tour.description || 'Нет описания' %></p>
+            <div class="bottom-panel">
+              <div class="tour-price"><%= tour.price.toFixed(2) %>₽</div>
+              <div><button>Купить</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </a>
+    <% }); %>
+  <% } else { %>
+    <div class="no-tours">
+      <p>Пока нет доступных туров</p>
+    </div>
+  <% } %>
+</div>
+
+
+  <footer>
+    <p>©SinkTravel
+    <a>Каталог</a>
+    <a>Подобрать тур</a>
+    <a>Корзина</a>
+    <a>Поиск</a>
+    <a>Профиль</a></p>
+  </footer>
+
 </body>
 </html>

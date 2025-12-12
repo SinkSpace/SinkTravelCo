@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= tour.name %> - SinkTravel</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <nav>
+    <p><img id="icon" src="/images/icon.svg">
+    <button id="takeTour">Подобрать тур</button></p>
+    <% if (user) { %>
+      <p><img id="active" src="/images/search.svg">
+      <img id="active" src="/images/cart.svg">
+      <img id="active" src="/images/profile.svg" onclick="window.location.href='/logout'"></p>
+    <% } else { %>
+      <p>
+        <img id="active" src="/images/search.svg">
+        <button onclick="window.location.href='/login'">Войти</button>
+      </p>
+    <% } %>
+  </nav>
+
+  <div class="tour-detail-container">
+    <h1><%= tour.name %></h1>
+    <img src="/images/abkhazia.png" class="tour-image-large">
+    <p><strong>Описание:</strong> <%= tour.description %></p>
+    <p><strong>Цена:</strong> <%= tour.price.toFixed(2) %>₽</p>
+    <p><strong>Город:</strong> <%= tour.City.name %></p>
+    <p><strong>Отель:</strong> <%= tour.Hotel.name %></p>
+    <p><strong>Длительность:</strong> <%= tour.duration %> дней</p>
+    <button>Купить</button>
+  </div>
+
+  <footer>
+    <p>©SinkTravel
+    <a href="/catalog">Каталог</a>
+    <a href="/take-tour">Подобрать тур</a>
+    <a href="/cart">Корзина</a>
+    <a href="/search">Поиск</a>
+    <a href="/profile">Профиль</a></p>
+  </footer>
+</body>
+</html>

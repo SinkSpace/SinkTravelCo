@@ -8,42 +8,83 @@
 </head>
 <body>
   <nav>
-    <p><img id="icon" src="/images/Group 16.svg"></p>
-<!--    <% if (user) { %>
-      <p>Здравствуйте, <%= user.username %>! <button onclick="window.location.href='/logout'">Выйти</button></p>
+    <p><img id="icon" src="/images/icon.svg">
+    <button id="takeTour">Подобрать тур</button></p>
+    <% if (user) { %>
+      <p><img id="active" src="/images/search.svg">
+      <img id="active" src="/images/cart.svg">
+      <img id="active" src="/images/profile.svg" onclick="window.location.href='/logout'"></p>
     <% } else { %>
-      <p><button onclick="window.location.href='/login'">Войти</button></p>
-    <% } %> -->
+      <p>
+        <img id="active" src="/images/search.svg">
+        <button onclick="window.location.href='/login'">Войти</button>
+      </p>
+    <% } %>
   </nav>
+
+  <header id="backImg">
+    <h1>Воспоминания, которые останутся навсегда.</h1>
+    <p>А мы поможем их получить</p>
+    <button>Регистрация</button>
+  </header>
+
+  <div id="name"><h1>Преимущества</h1></div>
+  <div id="doublePlus">
+    <section>
+      <img src="/images/individual.svg">
+      <div>
+        <h2>Индивидуальный подбор</h2>
+        <p>Подберём отдых под ваши желания</p>
+      </div>
+    </section>
+    <section>
+      <img src="/images/operator.svg">
+      <div>
+        <h2>Проверенные операторы</h2>
+        <p>Работаем с надёжными партнёрами</p>
+      </div>
+    </section>
+    </div>
+  <div id="doublePlus">
+    <section>
+      <img src="/images/support.svg">
+      <div>
+        <h2>Поддержка 24/7</h2>
+        <p>Мы на связи в любой точке мира</p>
+      </div>
+    </section>
+        <section>
+      <img src="/images/price.svg">
+      <div>
+        <h2>Честные цены</h2>
+        <p>Без скрытых платежей и доплат</p>
+      </div>
+    </section>
+  </div>
+
+  <div id="name"><h1>Популярные путёвки</h1></div>
 
   <div class="tours-container">
     <% if (tours && tours.length > 0) { %>
-      <% tours.forEach(tour => { %>
-        <div class="tour-card">
-          <h2><%= tour.name %></h2>
-          <p class="tour-description"><%= tour.description || 'Нет описания' %></p>
-          <% if (tour.image) { %>
+      <% tours.slice(0, 2).forEach(tour => { %>
+      <div class="tour-card">
+        <div class="tour-content">
+          <img src="/images/abkhazia.png" class="tour-image"> <!-- TODO: надо сдел -->
+<!--          <% if (tour.image) { %>
             <img src="<%= tour.image %>" alt="<%= tour.name %>" class="tour-image">
           <% } else { %>
             <div class="tour-image-placeholder">Нет изображения</div>
-          <% } %>
-          <p><strong>Длительность:</strong> <%= tour.duration %> суток</p>
-          <p><strong>Место:</strong> <%= tour.City.name %>, <%= tour.Hotel.name %></p>
-          
-          <div class="tour-meta">
-            <div class="tour-price"><%= tour.price.toFixed(2) %>₽</div>
-            <div class="tour-client">Забронировано: <%= tour.Client ? tour.Client.name : 'Не указан' %></div>
-          </div>
-        
-          <% if (user && user.role === 'admin') { %>
-            <div class="admin-actions">
-              <form action="/delete-tour/<%= tour.id %>" method="POST" style="display:inline;">
-                <button type="submit" class="delete-btn">Удалить</button>
-              </form>
-              <button onclick="window.location.href='/edit-tour/<%= tour.id %>'" class="edit-btn">Изменить</button>
+          <% } %> -->
+          <div class="tour-info">
+            <h2><%= tour.name %></h2>
+            <p class="tour-description"><%= tour.description || 'Нет описания' %></p>
+            <div class="bottom-panel">
+              <div class="tour-price"><%= tour.price.toFixed(2) %>₽</div>
+              <div><button>Купить</button></div>
             </div>
-          <% } %>
+          </div>
         </div>
+      </div>
       <% }); %>
     <% } else { %>
       <div class="no-tours">
@@ -52,13 +93,15 @@
     <% } %>
   </div>
 
-  <% if (user && user.role === 'admin') { %>
-    <div class="buttons">
-      <button onclick="window.location.href='/add-tour'">Добавить тур</button>
-      <button onclick="window.location.href='/add-city'">Добавить город</button>
-      <button onclick="window.location.href='/add-hotel'">Добавить отель</button>
-      <button onclick="window.location.href='/add-client'">Добавить клиента</button>
-    </div> 
-  <% } %>
+  <div style="text-align: center; margin-bottom: 30px;"><button>В каталог</button></div>
+
+  <footer>
+    <p>©SinkTravel
+    <a>Каталог</a>
+    <a>Подобрать тур</a>
+    <a>Корзина</a>
+    <a>Поиск</a>
+    <a>Профиль</a></p>
+  </footer>
 </body>
 </html>

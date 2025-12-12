@@ -5,117 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/styles.css">
     <title>Вход</title>
-    <style>
-        .login-container {
-            max-width: 500px;
-            margin: 2rem auto;
-            background: white;
-            padding: 2rem;
-            border-radius: 16px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .login-container h1 {
-            text-align: center;
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            color: #1e293b;
-        }
-
-        .form-group {
-            margin-bottom: 1.2rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #cbd5e1;
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: border-color 0.2s ease;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #2563eb;
-        }
-
-        .login-container button {
-            width: 100%;
-            padding: 14px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            background: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-bottom: 1rem;
-        }
-
-        .login-container button:hover {
-            transform: translateY(-2px);
-            background: #1d4ed8;
-        }
-
-        .login-container button:active {
-            transform: translateY(0);
-        }
-
-        .login-footer {
-            text-align: center;
-            font-size: 0.95rem;
-            color: #64748b;
-        }
-
-        .login-footer a {
-            color: #2563eb;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .login-footer a:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 600px) {
-            .login-container {
-                margin: 1rem;
-                padding: 1.5rem;
-            }
-
-            .login-container h1 {
-                font-size: 1.7rem;
-            }
-        }
-    </style>
 </head>
 <body>
+    <nav>
+    <p><img id="icon" src="/images/icon.svg">
+    <button id="takeTour">Подобрать тур</button></p>
+    <% if (user) { %>
+      <p><img id="active" src="/images/search.svg">
+      <img id="active" src="/images/cart.svg">
+      <img id="active" src="/images/profile.svg" onclick="window.location.href='/logout'"></p>
+    <% } else { %>
+      <p>
+        <img id="active" src="/images/search.svg">
+        <button onclick="window.location.href='/login'">Войти</button>
+      </p>
+    <% } %>
+  </nav>
+
+  <div id="imgIntegration">
     <div class="login-container">
-        <h1>Вход в систему</h1>
+        <h1>Вход</h1>
         <form action="/login" method="POST">
             <div class="form-group">
-                <label for="username">Логин:</label>
-                <input type="text" id="username" name="username" required>
+                <input type="text" id="username" name="username" placeholder="Логин" required>
             </div>
             <div class="form-group">
-                <label for="password">Пароль:</label>
-                <input type="password" id="password" name="password" required>
+                <input type="password" id="password" name="password" placeholder="Пароль" required>
             </div>
-            <button type="submit">Войти</button>
+            <div class="button-group">
+                <button type="submit">Войти</button>
+                <a href="/register"><button type="button">Регистрация</button></a>
+            </div>
             <div class="login-footer">
-                Нет аккаунта? <a href="/register">Зарегистрироваться</a>
+                <a href="/register">Не помню пароль</a>
             </div>
         </form>
     </div>
+    <img src="/images/join.jpeg">
+    </div>
+
+    <footer>
+    <p>©SinkTravel
+    <a>Каталог</a>
+    <a>Подобрать тур</a>
+    <a>Корзина</a>
+    <a>Поиск</a>
+    <a>Профиль</a></p>
+  </footer>
+
 </body>
 </html>

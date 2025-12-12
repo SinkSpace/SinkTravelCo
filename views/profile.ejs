@@ -4,69 +4,224 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Профиль</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-        .nav { margin-bottom: 20px; }
-        .nav a { margin-right: 15px; text-decoration: none; color: #007bff; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; }
-        input { padding: 8px; width: 300px; border: 1px solid #ddd; border-radius: 3px; }
-        .btn { padding: 8px 15px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
-        .error { color: red; margin: 10px 0; }
-        .tour { border: 1px solid #ddd; padding: 10px; margin: 5px 0; border-radius: 3px; }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="nav">
-        <a href="/">Главная</a>
-        <a href="/catalog">Каталог</a>
-        <a href="/cart">Корзина</a>
-        <a href="/profile">Профиль</a>
-        <a href="/logout">Выйти</a>
+  <nav>
+    <p><img id="icon" src="/images/icon.svg">
+    <button id="takeTour">Подобрать тур</button></p>
+    <% if (user) { %>
+      <p><img id="active" src="/images/search.svg">
+      <img id="active" src="/images/cart.svg">
+      <img id="active" src="/images/profile.svg" onclick="window.location.href='/logout'"></p>
+    <% } else { %>
+      <p>
+        <img id="active" src="/images/search.svg">
+        <button onclick="window.location.href='/login'">Войти</button>
+      </p>
+    <% } %>
+  </nav>
+
+  <h1 id="name">Профиль</h1>
+
+ <div id="profile-container">
+    <div id="settings">
+      <p><button data-tab="personal" class="active">Личные данные</button></p>
+      <p><button data-tab="docs">Документы</button></p>
+      <p><button data-tab="security">Безопасность</button></p>
+      <p><button data-tab="notifications">Уведомления</button></p>
+      <p><button data-tab="payments">Платежи</button></p>
+      <p><button data-tab="bookings">Бронирования</button></p>
+      <p><button data-tab="history">История</button></p>
     </div>
 
-    <h1>Мой профиль</h1>
-    
-    <div style="display: flex; gap: 40px;">
-        <div>
-            <h2>Информация о пользователе</h2>
-            <form action="/profile/update" method="POST">
-                <div class="form-group">
-                    <label for="username">Имя пользователя:</label>
-                    <input type="text" id="username" name="username" value="<%= user.username %>" required>
+    <div id="settings-content">
+      <div id="personal" class="tab-content active">
+        <h2>Личные данные</h2>
+        <form>
+          <section>
+            <label>Фамилия</label>
+            <input>
+          </section>
+          <section>
+            <label>Имя</label>
+            <input>
+          </section>
+          <section>
+            <label>Отчество</label>
+            <input>
+          </section>
+          <section>
+            <label>Email</label>
+            <input>
+          </section>
+          <section>
+            <label>Дата рождения</label>
+            <input>
+          </section>
+          <section>
+            <label>Пол</label>
+            <input>
+          </section>
+          </form>
+      </div>
+      <div id="docs" class="tab-content">
+        <h2>Документы</h2>
+        <form>
+          <section>
+            <label>Паспорт</label>
+            <input placeholder="Серия и номер">
+          </section>
+          <section>
+            <label>ID карта</label>
+            <input placeholder="Номер">
+          </section>
+        </form>
+      </div>
+
+      <div id="security" class="tab-content">
+        <h2>Безопасность</h2>
+        <form>
+          <section>
+            <label>Старый пароль</label>
+            <input type="password">
+          </section>
+          <section>
+            <label>Новый пароль</label>
+            <input type="password">
+          </section>
+          <section>
+            <label>Подтверждение нового пароля</label>
+            <input type="password">
+          </section>
+          <button type="submit">Сменить пароль</button>
+        </form>
+      </div>
+
+      <div id="notifications" class="tab-content">
+        <h2>Уведомления</h2>
+        <form>
+          <section>
+            <label>Email уведомления</label>
+            <input type="checkbox" checked> Включены
+          </section>
+          <section>
+            <label>SMS уведомления</label>
+            <input type="checkbox"> Включены
+          </section>
+          <section>
+            <label>Push уведомления</label>
+            <input type="checkbox" checked> Включены
+          </section>
+        </form>
+      </div>
+
+      <div id="payments" class="tab-content">
+        <h2>Платежи</h2>
+        <form>
+          <section>
+            <label>Банковская карта</label>
+            <input placeholder="Номер карты">
+          </section>
+          <section>
+            <label>Срок действия</label>
+            <input placeholder="MM/YY">
+          </section>
+          <section>
+            <label>CVC/CVV</label>
+            <input placeholder="***">
+          </section>
+          <button type="submit">Сохранить</button>
+        </form>
+      </div>
+      <div id="bookings" class="tab-content">
+        <h2>Бронирования</h2>
+          <div class="tours-container">
+          <% if (tours && tours.length > 0) { %>
+            <% tours.slice(0, 2).forEach(tour => { %>
+            <div class="tour-card">
+              <div class="tour-content">
+                <img src="/images/abkhazia.png" class="tour-image"> <!-- TODO: надо сдел -->
+      <!--          <% if (tour.image) { %>
+                  <img src="<%= tour.image %>" alt="<%= tour.name %>" class="tour-image">
+                <% } else { %>
+                  <div class="tour-image-placeholder">Нет изображения</div>
+                <% } %> -->
+                <div class="tour-info">
+                  <h2><%= tour.name %></h2>
+                  <p class="tour-description"><%= tour.description || 'Нет описания' %></p>
+                  <div class="bottom-panel">
+                    <div class="tour-price"><%= tour.price.toFixed(2) %>₽</div>
+                    <div><button>Купить</button></div>
+                  </div>
                 </div>
-                
-                <div class="form-group">
-                    <label for="currentPassword">Текущий пароль (для смены пароля):</label>
-                    <input type="password" id="currentPassword" name="currentPassword">
-                </div>
-                
-                <div class="form-group">
-                    <label for="newPassword">Новый пароль:</label>
-                    <input type="password" id="newPassword" name="newPassword">
-                </div>
-                
-                <button type="submit" class="btn">Сохранить изменения</button>
-            </form>
+              </div>
+            </div>
+            <% }); %>
+          <% } else { %>
+            <div class="no-tours">
+              <p>Пока нет доступных туров</p>
+            </div>
+          <% } %>
         </div>
-        
-        <div>
-            <h2>Мои туры</h2>
-            <% if (tours && tours.length > 0) { %>
-                <% tours.forEach(tour => { %>
-                    <div class="tour">
-                        <h4><%= tour.name %></h4>
-                        <p><strong>Цена:</strong> <%= tour.price %> руб.</p>
-                        <p><strong>Длительность:</strong> <%= tour.duration %> дней</p>
-                        <p><strong>Город:</strong> <%= tour.City.name %></p>
-                        <p><strong>Отель:</strong> <%= tour.Hotel.name %></p>
-                    </div>
-                <% }); %>
-            <% } else { %>
-                <p>У вас пока нет забронированных туров</p>
-                <a href="/catalog" class="btn">Посмотреть туры</a>
-            <% } %>
+      </div>
+      <div id="history" class="tab-content">
+        <h2>История</h2>
+          <div class="tours-container">
+          <% if (tours && tours.length > 0) { %>
+            <% tours.slice(0, 2).forEach(tour => { %>
+            <div class="tour-card">
+              <div class="tour-content">
+                <img src="/images/abkhazia.png" class="tour-image"> <!-- TODO: надо сдел -->
+      <!--          <% if (tour.image) { %>
+                  <img src="<%= tour.image %>" alt="<%= tour.name %>" class="tour-image">
+                <% } else { %>
+                  <div class="tour-image-placeholder">Нет изображения</div>
+                <% } %> -->
+                <div class="tour-info">
+                  <h2><%= tour.name %></h2>
+                  <p class="tour-description"><%= tour.description || 'Нет описания' %></p>
+                  <div class="bottom-panel">
+                    <div class="tour-price"><%= tour.price.toFixed(2) %>₽</div>
+                    <div><button>Купить</button></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <% }); %>
+          <% } else { %>
+            <div class="no-tours">
+              <p>Пока нет доступных туров</p>
+            </div>
+          <% } %>
         </div>
+      </div>
     </div>
+  </div>
+
+  <footer>
+    <p>©SinkTravel
+    <a>Каталог</a>
+    <a>Подобрать тур</a>
+    <a>Корзина</a>
+    <a>Поиск</a>
+    <a>Профиль</a></p>
+  </footer>
+
+<script>
+  const buttons = document.querySelectorAll('#settings button');
+  const contents = document.querySelectorAll('.tab-content');
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      contents.forEach(c => c.classList.remove('active'));
+      const tab = btn.getAttribute('data-tab');
+      document.getElementById(tab).classList.add('active');
+    });
+  });
+</script>
 </body>
 </html>
