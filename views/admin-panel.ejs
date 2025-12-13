@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Админ-панель</title>
+  <link rel="stylesheet" href="/admin-styles.css">
+</head>
+<body>
+  <nav>
+    <div class="nav-top">
+      <button data-target="appearance">Внешний вид</button>
+      <button data-target="tours">Туры</button>
+      <button data-target="users">Пользователи</button>
+      <button data-target="bookings">Бронирования</button>
+      <button data-target="notifications">Уведомления</button>
+      <button data-target="integrations">Интеграции</button>
+    </div>
+    <div class="nav-bottom">
+      <button id="logout">Выход</button>
+    </div>
+  </nav>
+
+  <main id="content">
+<form id="appearance" class="tab-content" action="/admin/save-content" method="POST">
+  <section>Слоган: <input name="slogan" value="<%= content.slogan %>"></section>
+  <section>Описание: <input name="description" value="<%= content.description %>"></section>
+  <section>Преимущества: <input name="advantage1_title" value="<%= content.advantage1_title %>"></section>
+  <section>ㅤ<input name="advantage1_text" value="<%= content.advantage1_text %>"></section>
+  <section>ㅤ<input name="advantage2_title" value="<%= content.advantage2_title %>"></section>
+  <section>ㅤ<input name="advantage2_text" value="<%= content.advantage2_text %>"></section>
+  <section>ㅤ<input name="advantage3_title" value="<%= content.advantage3_title %>"></section>
+  <section>ㅤ<input name="advantage3_text" value="<%= content.advantage3_text %>"></section>
+  <section>ㅤ<input name="advantage4_title" value="<%= content.advantage4_title %>"></section>
+  <section>ㅤ<input name="advantage4_text" value="<%= content.advantage4_text %>"></section>
+  <button type="submit">Сохранить</button>
+</form>
+    <div id="tours" class="tab-content" style="display:none;">
+
+  <div class="tours-admin-wrapper">
+
+    <!-- ВТОРАЯ НАВИГАЦИЯ -->
+    <aside class="tours-subnav">
+      <input type="text" id="tour-search" placeholder="Поиск..." style="height: 29px; width: 162px; margin-bottom: 0;"/>
+      <button class="subnav-btn active" data-sub="list-tours">Туры</button>
+      <button class="subnav-btn" data-sub="list-cities">Города</button>
+      <button class="subnav-btn" data-sub="list-hotels">Отели</button>
+      <div class="add-btn-wrapper">
+        <button id="add-item">Добавить</button>
+      </div>
+    </aside>
+
+    <!-- КОНТЕЙНЕР ДЛЯ КОНТЕНТА -->
+    <div class="tours-subcontent">
+
+      <!-- Подраздел ТУРЫ -->
+      <div id="list-tours" class="subtab" style="display:block;">
+        <div class="tours-container">
+          <% if (tours && tours.length > 0) { %>
+            <% tours.slice(0, 2).forEach(tour => { %>
+              <div class="tour-card">
+                <div class="tour-content">
+                  <img src="/images/abkhazia.png" class="tour-image">
+                  <div class="tour-info">
+                    <h2><%= tour.name %></h2>
+                    <p class="tour-description"><%= tour.description || 'Нет описания' %></p>
+                    <div class="bottom-panel">
+                      <div class="tour-price"><%= tour.price.toFixed(2) %>₽</div>
+                      <a href="/admin/edit-tour/<%= tour.id %>">
+  <button>Редактировать</button>
+</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% }); %>
+          <% } else { %>
+            <div class="no-tours">
+              <p>Пока нет доступных туров</p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+
+<!-- Подраздел ГОРОДА -->
+<div id="list-cities" class="subtab" style="display:none;">
+  <div class="cities-container">
+    <% if (cities && cities.length > 0) { %>
+      <% cities.forEach(city => { %>
+        <div class="city-card">
+          <div class="city-info">
+            <h3><%= city.name %></h3>
+            <p><%= city.country || 'Страна не указана' %></p>
+
+            <div class="bottom-panel">
+              <span>Отелей: <%= city.hotelsCount || 0 %></span>
+<form action="/admin/delete-city/<%= city.id %>" method="POST" 
+      onsubmit="return confirm('Удалить город? Все связанные отели тоже пропадут.')">
+  <button type="submit">Удалить</button>
+</form>
+
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <div class="empty">
+        <p>Города пока не добавлены</p>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+
+<!-- Подраздел ОТЕЛИ -->
+<div id="list-hotels" class="subtab" style="display:none;">
+  <div class="hotels-container">
+    <% if (hotels && hotels.length > 0) { %>
+      <% hotels.forEach(hotel => { %>
+        <div class="hotel-card">
+          <div class="hotel-info">
+            <h3><%= hotel.name %></h3>
+            <p>Город: <%= hotel.cityName || '—' %></p>
+            <p>⭐ <%= hotel.stars || 'без рейтинга' %></p>
+
+            <div class="bottom-panel">
+              <span>от <%= hotel.pricePerNight?.toFixed(0) || '—' %> ₽ / ночь</span>
+<form action="/admin/delete-hotel/<%= hotel.id %>" method="POST"
+      onsubmit="return confirm('Удалить отель?')">
+  <button type="submit">Удалить</button>
+</form>
+
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <div class="empty">
+        <p>Отели пока не добавлены</p>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+
+    </div>
+  </div>
+
+</div>
+
+    <div id="users" class="tab-content" style="display:none;">Контент для Пользователей</div>
+    <div id="bookings" class="tab-content" style="display:none;">Контент для Бронирований</div>
+    <div id="notifications" class="tab-content" style="display:none;">Контент для Уведомлений</div>
+    <div id="integrations" class="tab-content" style="display:none;">Контент для Интеграций</div>
+  </main>
+
+  <script>
+    const buttons = document.querySelectorAll('nav .nav-top button');
+    const tabs = document.querySelectorAll('.tab-content');
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.target;
+
+        // Показываем нужный контент
+        tabs.forEach(tab => {
+          tab.style.display = (tab.id === target) ? 'block' : 'none';
+        });
+
+        // Подсвечиваем активную кнопку
+        buttons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
+    // Выход
+    document.getElementById('logout').addEventListener('click', () => {
+      window.location.href = '/logout';
+    });
+
+    // ВТОРАЯ НАВИГАЦИЯ
+const subnavButtons = document.querySelectorAll('.subnav-btn');
+const subtabs = document.querySelectorAll('.subtab');
+
+subnavButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const sub = btn.dataset.sub;
+
+    subnavButtons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    subtabs.forEach(tab => {
+      tab.style.display = (tab.id === sub) ? 'block' : 'none';
+    });
+  });
+});
+
+// Логика кнопки "Добавить"
+document.getElementById('add-item').addEventListener('click', () => {
+  // Узнаём, какой подраздел активен
+  const active = document.querySelector('.subnav-btn.active')?.dataset.sub;
+
+  if (!active) return;
+
+  if (active === 'list-tours') {
+    window.location.href = '/admin/add-tour';
+  }
+  if (active === 'list-cities') {
+    window.location.href = '/admin/add-city';
+  }
+  if (active === 'list-hotels') {
+    window.location.href = '/admin/add-hotel';
+  }
+});
+  </script>
+</body>
+</html>

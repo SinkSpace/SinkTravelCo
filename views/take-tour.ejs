@@ -8,12 +8,11 @@
 </head>
 
 <body>
-
-    <nav>
+  <nav>
     <p><img id="icon" src="/images/icon.svg">
-    <button id="takeTour">Подобрать тур</button></p>
+    <a href="/take-tour"><button id="takeTour">Подобрать тур</button></a></p>
     <% if (user) { %>
-      <p><img id="active" src="/images/search.svg">
+      <p><a href="/search"><img id="active" src="/images/search.svg"></a>
       <img id="active" src="/images/cart.svg">
       <img id="active" src="/images/profile.svg" onclick="window.location.href='/logout'"></p>
     <% } else { %>
@@ -26,7 +25,7 @@
 
   <main class="take-tour-page">
 
-    <h1 class="page-title">Подбор тура</h1>
+    <h1 id="name">Подбор тура</h1>
 
     <div class="take-tour-wrapper">
 
@@ -52,6 +51,11 @@
     Срок
     <input type="number" name="duration" placeholder="Количество дней" min="1">
   </label></p>
+  
+  <p><label>
+  Город вылета
+  <input type="text" name="departureCity" placeholder="Введите город">
+</label></p>
 
   <p><label>
     Стоимость от

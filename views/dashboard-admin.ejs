@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Выбор панели</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <h1>Добро пожаловать, <%= user.username %></h1>
+  <p>Выберите куда перейти:</p>
+  <div style="display: flex; gap: 20px;">
+      <button onclick="window.location.href='/'">На сайт</button>
+      <button onclick="window.location.href='/admin-panel'">Админ-панель</button>
+  </div>
+</body>
+</html>

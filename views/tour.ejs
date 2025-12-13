@@ -8,21 +8,17 @@
 </head>
 <body>
   <nav>
-    <p>
-      <img id="icon" src="/images/icon.svg">
-      <button id="takeTour">Подобрать тур</button>
-    </p>
+    <p><img id="icon" src="/images/icon.svg">
+    <a href="/take-tour"><button id="takeTour">Подобрать тур</button></a></p>
     <% if (user) { %>
-    <p>
-      <img id="active" src="/images/search.svg">
+      <p><a href="/search"><img id="active" src="/images/search.svg"></a>
       <img id="active" src="/images/cart.svg">
-      <img id="active" src="/images/profile.svg" onclick="window.location.href='/logout'">
-    </p>
+      <img id="active" src="/images/profile.svg" onclick="window.location.href='/logout'"></p>
     <% } else { %>
-    <p>
-      <img id="active" src="/images/search.svg">
-      <button onclick="window.location.href='/login'">Войти</button>
-    </p>
+      <p>
+        <img id="active" src="/images/search.svg">
+        <button onclick="window.location.href='/login'">Войти</button>
+      </p>
     <% } %>
   </nav>
 

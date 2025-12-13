@@ -9,9 +9,9 @@
 <body>
   <nav>
     <p><img id="icon" src="/images/icon.svg">
-    <button id="takeTour">Подобрать тур</button></p>
+    <a href="/take-tour"><button id="takeTour">Подобрать тур</button></a></p>
     <% if (user) { %>
-      <p><img id="active" src="/images/search.svg">
+      <p><a href="/search"><img id="active" src="/images/search.svg"></a>
       <img id="active" src="/images/cart.svg">
       <img id="active" src="/images/profile.svg" onclick="window.location.href='/logout'"></p>
     <% } else { %>
@@ -22,45 +22,46 @@
     <% } %>
   </nav>
 
-  <header id="backImg">
-    <h1>Воспоминания, которые останутся навсегда.</h1>
-    <p>А мы поможем их получить</p>
-    <button>Регистрация</button>
-  </header>
+<header id="backImg">
+  <h1><%= content.slogan %></h1>
+  <p><%= content.description %></p>
+  <button>Регистрация</button>
+</header>
 
-  <div id="name"><h1>Преимущества</h1></div>
-  <div id="doublePlus">
-    <section>
-      <img src="/images/individual.svg">
-      <div>
-        <h2>Индивидуальный подбор</h2>
-        <p>Подберём отдых под ваши желания</p>
-      </div>
-    </section>
-    <section>
-      <img src="/images/operator.svg">
-      <div>
-        <h2>Проверенные операторы</h2>
-        <p>Работаем с надёжными партнёрами</p>
-      </div>
-    </section>
+<div id="name"><h1>Преимущества</h1></div>
+<div id="doublePlus">
+  <section>
+    <img src="/images/individual.svg">
+    <div>
+      <h2><%= content.advantage1_title %></h2>
+      <p><%= content.advantage1_text %></p>
     </div>
-  <div id="doublePlus">
-    <section>
-      <img src="/images/support.svg">
-      <div>
-        <h2>Поддержка 24/7</h2>
-        <p>Мы на связи в любой точке мира</p>
-      </div>
-    </section>
-        <section>
-      <img src="/images/price.svg">
-      <div>
-        <h2>Честные цены</h2>
-        <p>Без скрытых платежей и доплат</p>
-      </div>
-    </section>
-  </div>
+  </section>
+  <section>
+    <img src="/images/operator.svg">
+    <div>
+      <h2><%= content.advantage2_title %></h2>
+      <p><%= content.advantage2_text %></p>
+    </div>
+  </section>
+</div>
+<div id="doublePlus">
+  <section>
+    <img src="/images/support.svg">
+    <div>
+      <h2><%= content.advantage3_title %></h2>
+      <p><%= content.advantage3_text %></p>
+    </div>
+  </section>
+  <section>
+    <img src="/images/price.svg">
+    <div>
+      <h2><%= content.advantage4_title %></h2>
+      <p><%= content.advantage4_text %></p>
+    </div>
+  </section>
+</div>
+
 
   <div id="name"><h1>Популярные путёвки</h1></div>
 

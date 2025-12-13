@@ -8,12 +8,11 @@
 </head>
 
 <body>
-
-    <nav>
+  <nav>
     <p><img id="icon" src="/images/icon.svg">
-    <button id="takeTour">Подобрать тур</button></p>
+    <a href="/take-tour"><button id="takeTour">Подобрать тур</button></a></p>
     <% if (user) { %>
-      <p><img id="active" src="/images/search.svg">
+      <p><a href="/search"><img id="active" src="/images/search.svg"></a>
       <img id="active" src="/images/cart.svg">
       <img id="active" src="/images/profile.svg" onclick="window.location.href='/logout'"></p>
     <% } else { %>
@@ -36,7 +35,7 @@
 
     <div class="search-wrapper">
 
-      <form action="/search" method="POST" class="filter-panel">
+      <form action="/search" method="POST">
 
   <section><label>
     Пункт назначения
@@ -56,6 +55,11 @@
   <section><label>
     Срок
     <input type="number" name="duration" placeholder="Количество дней" min="1">
+  </label></section>
+
+  <section><label>
+    Город вылета
+    <input type="text" name="departureCity" placeholder="Введите город">
   </label></section>
 
   <section><label>
@@ -113,11 +117,11 @@
   <button type="submit" class="btn-primary">Найти</button>
 </form>
 
-  <div class="tours-container">
+  <div class="tours-container" style="display: inline; width: 750px;">
   <% if (tours && tours.length > 0) { %>
     <% tours.forEach(tour => { %>
     <a href="/tour/<%= tour.id %>" class="tour-link">
-      <div class="tour-card">
+      <div class="tour-card" style="margin-bottom: 50px;">
         <div class="tour-content">
           <img src="/images/abkhazia.png" class="tour-image">
           <div class="tour-info">
@@ -146,9 +150,9 @@
     <footer>
     <p>©SinkTravel
     <a href="/catalog">Каталог</a>
-    <a href="/search">Подобрать тур</a>
+    <a href="/take-tour">Подобрать тур</a>
     <a href="/cart">Корзина</a>
-    <a href="">Поиск</a>
+    <a href="/search">Поиск</a>
     <a href="/profile">Профиль</a></p>
   </footer>
   

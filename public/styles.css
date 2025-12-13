@@ -122,7 +122,7 @@ select {
 
 .tours-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
   gap: 2rem;
   margin-bottom: 2rem;
   margin-left: 64px;
@@ -130,14 +130,14 @@ select {
 }
 
 .tour-card {
-  background: white;
-  border-radius: 16px;
-  padding: 1.8rem;
-  border: 1px solid #e2e8f0;
-  transition: transform 0.2s ease;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  flex-direction: column; 
+  justify-content: space-between; 
+  height: 100%; 
+  background: #CECEF5;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  padding: 0;
 }
 
 .tour-card h2 {
@@ -148,7 +148,7 @@ select {
 }
 
 .tour-card p {
-  margin-bottom: 0.8rem;
+  margin-bottom: 6rem;
   color: #475569;
   font-size: 1rem;
 }
@@ -227,11 +227,13 @@ button:active {
   border: 1px solid #e2e8f0;
   padding: 0; 
   border-radius: 0; 
+  height: 300px;
 }
 
 .tour-content {
   display: flex;
-  height: 100%; 
+  flex-direction: row; 
+  flex: 1; 
 }
 
 .tour-image,
@@ -249,25 +251,17 @@ button:active {
 }
 
 .tour-info {
-  padding: 1rem; 
-  padding-bottom: 0;
   display: flex;
   flex-direction: column;
+  justify-content: space-between; 
   flex: 1;
+  padding: 1rem;
 }
 
 .bottom-panel {
-  position: sticky;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: white;
-  border-top: 1px solid #ddd;
-  padding: 14px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  z-index: 20;
 }
 
 .tour-price {
@@ -442,7 +436,7 @@ button:active {
 }
 
 .tab-content {
-  display: none;
+  display: flex;
 }
 
 .tab-content.active {
@@ -536,6 +530,61 @@ button:active {
   width: 250px;
   display: inline-block;
   width: 175px;
+}
+
+.filter-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px; 
+}
+
+.filter-panel section {
+  flex: 1 1 45%; 
+  min-width: 250px;
+}
+
+.filter-panel button {
+  flex-basis: 10%;
+  margin-top: 20px;
+}
+
+.take-tour-wrapper section {
+  margin-left: 64px;
+}
+
+.take-tour-wrapper p {
+  display: flex;
+  justify-content: space-between;
+}
+
+.take-tour-wrapper label {
+  width: 175px;
+  display: inline-block;
+}
+
+.filter-panel {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.filter-panel section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.filter-panel button {
+  grid-column: 1 / -1;  
+  justify-self: center; 
+  padding: 12px 24px;
+  margin-top: 20px;
+}
+
+.btn-primary {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
 }
 
 footer {
