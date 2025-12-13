@@ -4,6 +4,7 @@ import session from 'express-session';
 import bcrypt from 'bcrypt';
 import { fileURLToPath } from 'url';
 import multer from 'multer';
+import { Sequelize, Op } from 'sequelize';
 
 import {
   sequelize,
@@ -14,7 +15,9 @@ import {
   SiteContent
 } from './models/index.js';
 
+// =======================
 // Настройка multer
+// =======================
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -30,12 +33,12 @@ const storage = multer.diskStorage({
 
 export const upload = multer({ storage });
 
+// =======================
+// Инициализация сервера
+// =======================
 const app = express();
 const PORT = 3000;
 
-/* =======================
-   НАСТРОЙКИ
-======================= */
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -47,13 +50,14 @@ app.use(
   session({
     secret: 'SinkSpace',
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    cookie: { maxAge: 1000 * 60 * 60 * 24 } // 1 день
   })
 );
 
-/* =======================
-   ПОЛЬЗОВАТЕЛЬ ИЗ СЕССИИ
-======================= */
+// =======================
+// Пользователь из сессии
+// =======================
 app.use(async (req, res, next) => {
   if (req.session.userId) {
     req.user = await User.findByPk(req.session.userId);
@@ -64,15 +68,11 @@ app.use(async (req, res, next) => {
   next();
 });
 
-/* =======================
-   ПУБЛИЧНЫЕ СТРАНИЦЫ
-======================= */
+// =======================
+// Публичные страницы
+// =======================
 app.get('/', async (req, res) => {
-  const tours = await Tour.findAll({
-    limit: 6,
-    include: [City, Hotel]
-  });
-
+  const tours = await Tour.findAll({ limit: 6, include: [City, Hotel] });
   const content = await SiteContent.findByPk(1);
   res.render('index', { tours, content });
 });
@@ -83,44 +83,139 @@ app.get('/catalog', async (req, res) => {
 });
 
 app.get('/tour/:id', async (req, res) => {
-  const tour = await Tour.findByPk(req.params.id, {
-    include: [City, Hotel]
+  const tour = await Tour.findByPk(req.params.id, { include: [City, Hotel] });
+  if (!tour) return res.status(404).render('404');
+
+  const similarTours = await Tour.findAll({
+    where: { id: { [Op.ne]: tour.id } }, // исключаем текущий тур
+    include: [City, Hotel],
+    order: sequelize.random(),
+    limit: 2
   });
 
-  if (!tour) return res.status(404).render('404');
-  res.render('tour', { tour });
+  res.render('tour', { tour, similarTours });
 });
 
-/* =======================
-   АВТОРИЗАЦИЯ
-======================= */
+app.get('/search', async (req, res) => {
+  try {
+    const cities = await City.findAll();
+    const hotels = await Hotel.findAll();
+    // По умолчанию показываем все туры
+    const tours = await Tour.findAll({ include: [City, Hotel] });
+    
+    res.render('search', { user: req.user, cities, hotels, tours });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Ошибка сервера');
+  }
+});
+
+app.get('/take-tour', async (req, res) => {
+  const cities = await City.findAll();
+  const hotels = await Hotel.findAll();
+  const tours = await Tour.findAll({ include: [City, Hotel] });
+
+  res.render('take-tour', { user: req.user, cities, hotels, tours });
+});
+
+// POST: фильтрация туров
+app.post('/take-tour', async (req, res) => {
+  const { cityId, duration, hotelId, hotelStars, minPrice, maxPrice } = req.body;
+
+  const filter = {};
+
+  if (cityId) filter.cityId = cityId;
+  if (duration) filter.duration = duration;
+  if (hotelId) filter.hotelId = hotelId;
+  if (minPrice) filter.price = { ...(filter.price || {}), [Op.gte]: Number(minPrice) };
+  if (maxPrice) filter.price = { ...(filter.price || {}), [Op.lte]: Number(maxPrice) };
+  if (hotelStars) filter['$Hotel.stars$'] = hotelStars; // через include
+
+  const cities = await City.findAll();
+  const hotels = await Hotel.findAll();
+
+  const tours = await Tour.findAll({
+    where: filter,
+    include: [Hotel, City]
+  });
+
+  res.render('take-tour', { user: req.user, cities, hotels, tours });
+});
+
+// =======================
+// Страница регистрации
+// =======================
+app.get('/register', (req, res) => {
+  res.render('register', { error: null });
+});
+
+app.post('/register', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    // Проверка существующего пользователя
+    const existingUser = await User.findOne({ where: { username } });
+    if (existingUser) {
+      return res.render('register', { error: 'Пользователь с таким логином уже существует' });
+    }
+
+    // Создание нового пользователя
+    const newUser = await User.create({ username, password, role: 'client' });
+
+    // Логиним сразу
+    req.session.userId = newUser.id;
+    res.redirect('/catalog');
+  } catch (err) {
+    console.error(err);
+    res.render('register', { error: 'Ошибка при регистрации' });
+  }
+});
+
+// =======================
+// Профиль пользователя
+// =======================
+app.get('/profile', async (req, res) => {
+  if (!req.user) return res.redirect('/login'); // если не авторизован, кидаем на логин
+
+  // Если нужно, можно получить дополнительные данные, например туры пользователя
+  // const userTours = await Tour.findAll({ where: { UserId: req.user.id } });
+
+  res.render('profile', { user: req.user /*, tours: userTours */ });
+});
+
+// =======================
+// Авторизация
+// =======================
 app.get('/login', (req, res) => {
   res.render('login', { error: null });
 });
 
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
+  console.log('Login attempt:', username, password);
 
   const user = await User.findOne({ where: { username } });
+  console.log('Found user:', user);
+
   if (!user) return res.render('login', { error: 'Неверный логин или пароль' });
 
   const ok = await bcrypt.compare(password, user.password);
+  console.log('Password match:', ok);
+
   if (!ok) return res.render('login', { error: 'Неверный логин или пароль' });
 
   req.session.userId = user.id;
-
-  if (user.role === 'admin') return res.redirect('/admin-panel');
-  if (user.role === 'moder') return res.redirect('/moder-panel');
-  res.redirect('/');
+  res.redirect('/catalog');
 });
+
 
 app.get('/logout', (req, res) => {
   req.session.destroy(() => res.redirect('/'));
 });
 
-/* =======================
-   АДМИН-ПАНЕЛЬ
-======================= */
+// =======================
+// Админ-панель
+// =======================
 app.get('/admin-panel', async (req, res) => {
   if (!req.user || req.user.role !== 'admin') return res.redirect('/login');
 
@@ -132,14 +227,64 @@ app.get('/admin-panel', async (req, res) => {
   res.render('admin-panel', { user: req.user, tours, cities, hotels, content });
 });
 
-/* =======================
-   ДОБАВЛЕНИЕ ГОРОДА
-======================= */
-app.get('/admin/add-city', (req, res) => res.render('add-city'));
+// =======================
+// Добавление города
+// =======================
+// GET форма добавления города
+app.get('/admin/add-city', (req, res) => {
+  res.render('add-city', { error: null });
+});
 
+// POST обработка добавления города
 app.post('/admin/add-city', async (req, res) => {
-  const { name, country } = req.body;
-  await City.create({ name, country });
+  try {
+    const { name, country } = req.body;
+
+    if (!name || !country) {
+      return res.render('add-city', { error: 'Заполните все обязательные поля' });
+    }
+
+    await City.create({ name, country });
+
+    res.redirect('/admin-panel');
+  } catch (err) {
+    console.error(err);
+    res.send('Ошибка при добавлении города');
+  }
+});
+
+// GET форма добавления отеля
+app.get('/admin/add-hotel', async (req, res) => {
+  const cities = await City.findAll();
+  res.render('add-hotel', { cities, error: null });
+});
+
+// POST обработка
+app.post('/admin/add-hotel', async (req, res) => {
+  try {
+    const { name, stars, address, cityId } = req.body;
+
+    if (!name || !stars || !cityId) {
+      const cities = await City.findAll();
+      return res.render('add-hotel', { cities, error: 'Заполните все обязательные поля' });
+    }
+
+    await Hotel.create({
+      name,
+      stars: parseInt(stars),
+      address: address || '',
+      CityId: parseInt(cityId)
+    });
+
+    res.redirect('/admin-panel');
+  } catch (err) {
+    console.error(err);
+    res.send('Ошибка при добавлении отеля');
+  }
+});
+
+app.post('/admin/delete-hotel/:id', async (req, res) => {
+  await Hotel.destroy({ where: { id: req.params.id } });
   res.redirect('/admin-panel');
 });
 
@@ -148,29 +293,46 @@ app.post('/admin/delete-city/:id', async (req, res) => {
   res.redirect('/admin-panel');
 });
 
-app.post('/admin/delete-hotel/:id', async (req, res) => {
-  await Hotel.destroy({ where: { id: req.params.id } });
-  res.redirect('/admin-panel');
-});
 
-/* =======================
-   ДОБАВЛЕНИЕ ТУРА
-======================= */
+// =======================
+// Добавление тура
+// =======================
 app.get('/admin/add-tour', async (req, res) => {
   const cities = await City.findAll();
   const hotels = await Hotel.findAll();
-  res.render('add-tour', { cities, hotels, clients: [] });
+  res.render('add-tour', { cities, hotels });
 });
 
-app.post('/admin/add-tour', async (req, res) => {
-  const { name, description, price, duration, cityId, hotelId } = req.body;
-  await Tour.create({ name, description, price, duration, CityId: cityId, HotelId: hotelId });
-  res.redirect('/admin-panel');
+// POST для добавления тура с файлом
+app.post('/admin/add-tour', upload.single('image'), async (req, res) => {
+  try {
+    // req.body теперь доступен, multer распарсил форму
+    const { name, description, price, duration, cityId, hotelId, clientId } = req.body;
+
+    const newTour = await Tour.create({
+      name,
+      description,
+      price,
+      duration,
+      CityId: cityId,
+      HotelId: hotelId,
+      ClientId: clientId || null, // если клиента не выбрали
+      image: req.file ? '/uploads/' + req.file.filename : null
+    });
+
+    res.redirect('/admin-panel');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Ошибка при добавлении тура');
+  }
 });
 
-/* =======================
-   РЕДАКТИРОВАНИЕ ТУРА
-======================= */
+
+
+
+// =======================
+// Редактирование тура
+// =======================
 app.get('/admin/edit-tour/:id', async (req, res) => {
   const tour = await Tour.findByPk(req.params.id);
   const cities = await City.findAll();
@@ -196,27 +358,53 @@ app.post('/admin/update-tour/:id', upload.single('image'), async (req, res) => {
   res.redirect('/admin-panel');
 });
 
-/* =======================
-   МОДЕРАТОР
-======================= */
+// =======================
+// Модер-панель
+// =======================
 app.get('/moder-panel', (req, res) => {
   if (!req.user || req.user.role !== 'moder') return res.redirect('/login');
   res.send('<h1>Модер-панель</h1><a href="/logout">Выйти</a>');
 });
 
-/* =======================
-   404
-======================= */
+// =======================
+// 404
+// =======================
 app.use((req, res) => res.status(404).render('404'));
 
-/* =======================
-   ЗАПУСК
-======================= */
+// =======================
+// Создание начальных пользователей (с исправлением хэша)
+// =======================
+async function createDefaultUsers() {
+  const usersData = [
+    { username: 'admin', password: 'adminpass', role: 'admin' },
+    { username: 'moder', password: 'moderpass', role: 'moder' },
+    { username: 'user', password: 'userpass', role: 'client' }
+  ];
+
+  for (const u of usersData) {
+    const existing = await User.findOne({ where: { username: u.username } });
+    if (!existing) {
+      await User.create(u);
+      console.log(`Создан пользователь ${u.username}`);
+    } else {
+      // Обновляем пароль, чтобы сработал beforeUpdate и был корректный хэш
+      existing.password = u.password;
+      await existing.save();
+      console.log(`Обновлён пароль пользователя ${u.username}`);
+    }
+  }
+}
+
+
+
+// =======================
+// Запуск сервера
+// =======================
 (async () => {
   try {
     await sequelize.sync();
 
-    // создаём контент, если нет
+    // Контент сайта
     await SiteContent.findOrCreate({
       where: { id: 1 },
       defaults: {
@@ -233,198 +421,11 @@ app.use((req, res) => res.status(404).render('404'));
       }
     });
 
-    // создаём туры, если их нет
-    const tourCount = await Tour.count();
-    if (tourCount === 0) {
-      const tourData = [
-        {
-          city: { name: 'Париж', country: 'Франция' },
-          hotel: { name: 'Hotel Lumière', stars: 5, address: 'Rue de Rivoli, 1' },
-          name: 'Романтический Париж',
-          description: 'Прогулки по набережной Сены, Эйфелева башня и уютные кафе.',
-          price: 2500,
-          duration: 5
-        },
-        {
-          city: { name: 'Рим', country: 'Италия' },
-          hotel: { name: 'Roma Bella', stars: 4, address: 'Via Veneto, 12' },
-          name: 'Исторический Рим',
-          description: 'Колизей, Ватикан и вкуснейшая итальянская кухня.',
-          price: 2200,
-          duration: 4
-        },
-        {
-          city: { name: 'Барселона', country: 'Испания' },
-          hotel: { name: 'Casa Barcelona', stars: 4, address: 'Passeig de Gràcia, 5' },
-          name: 'Солнечная Барселона',
-          description: 'Гауди, пляжи и тапас-вечеринки под звёздами.',
-          price: 2100,
-          duration: 5
-        },
-        {
-          city: { name: 'Лондон', country: 'Великобритания' },
-          hotel: { name: 'The Crown', stars: 5, address: 'Baker Street, 221B' },
-          name: 'Лондонская классика',
-          description: 'Биг-Бен, Букингемский дворец и экскурсии по Темзе.',
-          price: 2700,
-          duration: 6
-        },
-        {
-          city: { name: 'Прага', country: 'Чехия' },
-          hotel: { name: 'Prague Palace', stars: 4, address: 'Karlova, 3' },
-          name: 'Очарование Праги',
-          description: 'Старинные мосты, уютные улочки и местное пиво.',
-          price: 1800,
-          duration: 4
-        },
-        {
-          city: { name: 'Берлин', country: 'Германия' },
-          hotel: { name: 'Berlin Art', stars: 4, address: 'Unter den Linden, 7' },
-          name: 'Современный Берлин',
-          description: 'История и арт-сцена, экскурсии и клубы.',
-          price: 2000,
-          duration: 4
-        },
-        {
-          city: { name: 'Амстердам', country: 'Нидерланды' },
-          hotel: { name: 'Tulip Inn', stars: 3, address: 'Prinsengracht, 50' },
-          name: 'Амстердам на велосипедах',
-          description: 'Каналы, музеи и голландские сыры.',
-          price: 1900,
-          duration: 3
-        },
-        {
-          city: { name: 'Вена', country: 'Австрия' },
-          hotel: { name: 'Vienna Royal', stars: 5, address: 'Ringstraße, 10' },
-          name: 'Классическая Вена',
-          description: 'Оперные вечера, дворцы и кофе по-венски.',
-          price: 2300,
-          duration: 4
-        },
-        {
-          city: { name: 'Стамбул', country: 'Турция' },
-          hotel: { name: 'Istanbul View', stars: 4, address: 'Sultanahmet, 15' },
-          name: 'Стамбулская сказка',
-          description: 'Голубая мечеть, базары и турецкий чай.',
-          price: 1700,
-          duration: 4
-        },
-        {
-          city: { name: 'Киото', country: 'Япония' },
-          hotel: { name: 'Kyoto Garden', stars: 5, address: 'Gion, 2' },
-          name: 'Японская гармония',
-          description: 'Храмы, сакура и чайные церемонии.',
-          price: 3000,
-          duration: 6
-        },
-        {
-          city: { name: 'Нью-Йорк', country: 'США' },
-          hotel: { name: 'Central Park Inn', stars: 5, address: '5th Avenue, 101' },
-          name: 'Большое яблоко',
-          description: 'Статуя Свободы, Таймс-сквер и Broadway-шоу.',
-          price: 2800,
-          duration: 5
-        },
-        {
-          city: { name: 'Сидней', country: 'Австралия' },
-          hotel: { name: 'Harbour View', stars: 4, address: 'Sydney Harbour, 10' },
-          name: 'Сиднейские приключения',
-          description: 'Опера, пляжи и серфинг.',
-          price: 3200,
-          duration: 7
-        },
-        {
-          city: { name: 'Рейкьявик', country: 'Исландия' },
-          hotel: { name: 'Northern Lights', stars: 3, address: 'Laugavegur, 12' },
-          name: 'Ледяная Исландия',
-          description: 'Гейзеры, водопады и северное сияние.',
-          price: 3500,
-          duration: 5
-        },
-        {
-          city: { name: 'Каир', country: 'Египет' },
-          hotel: { name: 'Pyramid View', stars: 4, address: 'Al Haram, 1' },
-          name: 'Древний Каир',
-          description: 'Пирамиды, Нил и базары.',
-          price: 1800,
-          duration: 4
-        },
-        {
-          city: { name: 'Рио-де-Жанейро', country: 'Бразилия' },
-          hotel: { name: 'Copacabana Inn', stars: 4, address: 'Copacabana, 5' },
-          name: 'Карнавал Рио',
-          description: 'Пляжи, статуя Христа и самба.',
-          price: 2400,
-          duration: 5
-        },
-        {
-          city: { name: 'Бангкок', country: 'Таиланд' },
-          hotel: { name: 'Bangkok Palace', stars: 4, address: 'Sukhumvit, 22' },
-          name: 'Бангкокский вихрь',
-          description: 'Храмы, рынки и тайская еда.',
-          price: 1900,
-          duration: 4
-        },
-        {
-          city: { name: 'Дубай', country: 'ОАЭ' },
-          hotel: { name: 'Burj View', stars: 5, address: 'Downtown, 1' },
-          name: 'Роскошь Дубая',
-          description: 'Бурдж-Халифа, шоппинг и пустынные сафари.',
-          price: 3300,
-          duration: 5
-        },
-        {
-          city: { name: 'Сан-Франциско', country: 'США' },
-          hotel: { name: 'Golden Gate Hotel', stars: 4, address: 'Lombard St, 10' },
-          name: 'Сан-Франциско',
-          description: 'Золотые ворота, Алькатрас и трамваи.',
-          price: 2600,
-          duration: 4
-        },
-        {
-          city: { name: 'Лиссабон', country: 'Португалия' },
-          hotel: { name: 'Lisboa Bella', stars: 4, address: 'Rua Augusta, 15' },
-          name: 'Лиссабонские улочки',
-          description: 'Трамваи, пастéis de nata и уютные площади.',
-          price: 2100,
-          duration: 4
-        },
-        {
-          city: { name: 'Будапешт', country: 'Венгрия' },
-          hotel: { name: 'Danube View', stars: 4, address: 'Szechenyi, 3' },
-          name: 'Будапештская сказка',
-          description: 'Термальные купальни, Дунай и ночные прогулки.',
-          price: 2000,
-          duration: 3
-        }
-      ];
+    // Создание пользователей
+    await createDefaultUsers();
 
-      for (const t of tourData) {
-        // создаём город, если не существует
-        let city = await City.findOne({ where: { name: t.city.name } });
-        if (!city) city = await City.create(t.city);
-
-        // создаём отель
-        let hotel = await Hotel.findOne({ where: { name: t.hotel.name } });
-        if (!hotel) hotel = await Hotel.create({ ...t.hotel, CityId: city.id });
-
-        await Tour.create({
-          name: t.name,
-          description: t.description,
-          price: t.price,
-          duration: t.duration,
-          CityId: city.id,
-          HotelId: hotel.id
-        });
-      }
-
-      console.log('✅ Создано 20 туров с примерами');
-    }
-
-    app.listen(PORT, () => console.log(`🚀 http://localhost:${PORT}`));
+    app.listen(PORT, () => console.log(`🚀 Сервер запущен: http://localhost:${PORT}`));
   } catch (err) {
     console.error(err);
   }
 })();
-
-

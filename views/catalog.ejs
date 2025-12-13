@@ -8,15 +8,15 @@
 </head>
 <body>
   <nav>
-    <p><img id="icon" src="/images/icon.svg">
+    <p><a href="/"><img id="icon" src="/images/icon.svg"></a>
     <a href="/take-tour"><button id="takeTour">Подобрать тур</button></a></p>
     <% if (user) { %>
       <p><a href="/search"><img id="active" src="/images/search.svg"></a>
-      <img id="active" src="/images/cart.svg">
-      <img id="active" src="/images/profile.svg" onclick="window.location.href='/logout'"></p>
+      <img id="active" src="/images/profile.svg" onclick="window.location.href='/profile'">
+      <button onclick="window.location.href='/logout'">Выйти</button></p>
     <% } else { %>
       <p>
-        <img id="active" src="/images/search.svg">
+        <a href="/search"><img id="active" src="/images/search.svg"></a>
         <button onclick="window.location.href='/login'">Войти</button>
       </p>
     <% } %>

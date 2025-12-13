@@ -4,20 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Подобрать тур</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="/styles.css">
 </head>
 
 <body>
   <nav>
-    <p><img id="icon" src="/images/icon.svg">
+    <p><a href="/"><img id="icon" src="/images/icon.svg"></a>
     <a href="/take-tour"><button id="takeTour">Подобрать тур</button></a></p>
     <% if (user) { %>
       <p><a href="/search"><img id="active" src="/images/search.svg"></a>
-      <img id="active" src="/images/cart.svg">
-      <img id="active" src="/images/profile.svg" onclick="window.location.href='/logout'"></p>
+      <img id="active" src="/images/profile.svg" onclick="window.location.href='/profile'">
+      <button onclick="window.location.href='/logout'">Выйти</button></p>
     <% } else { %>
       <p>
-        <img id="active" src="/images/search.svg">
+        <a href="/search"><img id="active" src="/images/search.svg"></a>
         <button onclick="window.location.href='/login'">Войти</button>
       </p>
     <% } %>
@@ -32,126 +32,95 @@
       <form action="/take-tour" method="POST" class="filter-panel">
 
         <section>
-  <p><label>
-    Пункт назначения
-    <select name="cityId">
-      <option value="">Любой</option>
-      <% cities.forEach(city => { %>
-        <option value="<%= city.id %>"><%= city.name %></option>
-      <% }) %>
-    </select>
-  </label></p>
+          <p><label>
+            Пункт назначения
+            <select name="cityId">
+              <option value="">Любой</option>
+              <% cities.forEach(city => { %>
+                <option value="<%= city.id %>"><%= city.name %></option>
+              <% }) %>
+            </select>
+          </label></p>
 
-  <p><label>
-    Дата вылета
-    <input type="date" name="startDate">
-  </label></p>
+          <p><label>
+            Длительность (дней)
+            <input type="number" name="duration" placeholder="Любая" min="1">
+          </label></p>
 
-  <p><label>
-    Срок
-    <input type="number" name="duration" placeholder="Количество дней" min="1">
-  </label></p>
-  
-  <p><label>
-  Город вылета
-  <input type="text" name="departureCity" placeholder="Введите город">
-</label></p>
+          <p><label>
+            Отель
+            <select name="hotelId">
+              <option value="">Любой</option>
+              <% hotels.forEach(hotel => { %>
+                <option value="<%= hotel.id %>"><%= hotel.name %> (<%= hotel.stars %>★)</option>
+              <% }) %>
+            </select>
+          </label></p>
 
-  <p><label>
-    Стоимость от
-    <input type="number" name="minPrice" placeholder="0">
-  </label></p>
-  </section>
-  <section>
+          <p><label>
+            Звёздность отеля
+            <select name="hotelStars">
+              <option value="">Любая</option>
+              <option value="1">1★</option>
+              <option value="2">2★</option>
+              <option value="3">3★</option>
+              <option value="4">4★</option>
+              <option value="5">5★</option>
+            </select>
+          </label></p>
 
-  <p><label>
-    Тип питания
-    <select name="meal">
-      <option value="">Любой</option>
-      <option>BB</option>
-      <option>HB</option>
-      <option>FB</option>
-      <option>AI</option>
-    </select>
-  </label></p>
+          <p><label>
+            Цена от
+            <input type="number" name="minPrice" placeholder="0">
+          </label></p>
+          <p><label>
+            Цена до
+            <input type="number" name="maxPrice" placeholder="100000">
+          </label></p>
+        </section>
 
-  <p><label>
-    Тип отдыха
-    <select name="type">
-      <option value="">Любой</option>
-      <option value="Пляжный">Пляжный</option>
-      <option value="Экскурсионный">Экскурсионный</option>
-      <option value="Активный">Активный</option>
-    </select>
-  </label></p>
+        <button type="submit" class="btn-primary">Подобрать</button>
+      </form>
 
-  <p><label>
-    Тип отеля
-    <select name="hotelType">
-      <option value="">Любой</option>
-      <option value="Апартаменты">Апартаменты</option>
-      <option value="Отель">Отель</option>
-      <option value="Вилла">Вилла</option>
-      <option value="Гостевой дом">Гостевой дом</option>
-    </select>
-  </label></p>
-
-  <p><label>
-    Отель
-    <select name="hotelId">
-      <option value="">Любой</option>
-      <% hotels.forEach(h => { %>
-        <option value="<%= h.id %>"><%= h.name %></option>
-      <% }) %>
-    </select>
-  </label></p>
-
-  <p><label>
-    Стоимость до
-    <input type="number" name="maxPrice" placeholder="100000">
-  </label></p>
-  </section>
-
-  <button type="submit" class="btn-primary">Подобрать</button>
-</form>
-
-  <div class="tours-container">
-  <% if (tours && tours.length > 0) { %>
-    <% tours.forEach(tour => { %>
-    <a href="/tour/<%= tour.id %>" class="tour-link">
-      <div class="tour-card">
-        <div class="tour-content">
-          <img src="/images/abkhazia.png" class="tour-image">
-          <div class="tour-info">
-            <h2><%= tour.name %></h2>
-            <p class="tour-description"><%= tour.description || 'Нет описания' %></p>
-            <div class="bottom-panel">
-              <div class="tour-price"><%= tour.price.toFixed(2) %>₽</div>
-              <div><button>Купить</button></div>
+      <div class="tours-container">
+        <% if (tours && tours.length > 0) { %>
+          <% tours.forEach(tour => { %>
+          <a href="/tour/<%= tour.id %>" class="tour-link">
+            <div class="tour-card">
+              <div class="tour-content">
+                <img src="/images/abkhazia.png" class="tour-image">
+                <div class="tour-info">
+                  <h2><%= tour.name %></h2>
+                  <p class="tour-description"><%= tour.description || 'Нет описания' %></p>
+                  <div class="bottom-panel">
+                    <div class="tour-price"><%= tour.price.toFixed(2) %>₽</div>
+                    <div><button>Купить</button></div>
+                  </div>
+                </div>
+              </div>
             </div>
+          </a>
+          <% }); %>
+        <% } else { %>
+          <div class="no-tours">
+            <p>Пока нет доступных туров</p>
           </div>
-        </div>
+        <% } %>
       </div>
-    </a>
-    <% }); %>
-  <% } else { %>
-    <div class="no-tours">
-      <p>Пока нет доступных туров</p>
-    </div>
-  <% } %>
-</div>
 
     </div>
 
   </main>
 
-    <footer>
+  <footer>
     <p>©SinkTravel
-    <a href="/catalog">Каталог</a>
-    <a href="/take-tour">Подобрать тур</a>
-    <a href="/cart">Корзина</a>
-    <a href="">Поиск</a>
-    <a href="/profile">Профиль</a></p>
+      <a href="/catalog">Каталог</a>
+      <a href="/take-tour">Подобрать тур</a>
+      <a href="/cart">Корзина</a>
+      <a href="/search">Поиск</a>
+      <a href="/profile">Профиль</a>
+    </p>
   </footer>
+
 </body>
 </html>

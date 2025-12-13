@@ -8,15 +8,15 @@
 </head>
 <body>
   <nav>
-    <p><img id="icon" src="/images/icon.svg">
+    <p><a href="/"><img id="icon" src="/images/icon.svg"></a>
     <a href="/take-tour"><button id="takeTour">Подобрать тур</button></a></p>
     <% if (user) { %>
       <p><a href="/search"><img id="active" src="/images/search.svg"></a>
-      <img id="active" src="/images/cart.svg">
-      <img id="active" src="/images/profile.svg" onclick="window.location.href='/logout'"></p>
+      <img id="active" src="/images/profile.svg" onclick="window.location.href='/profile'">
+      <button onclick="window.location.href='/logout'">Выйти</button></p>
     <% } else { %>
       <p>
-        <img id="active" src="/images/search.svg">
+        <a href="/search"><img id="active" src="/images/search.svg"></a>
         <button onclick="window.location.href='/login'">Войти</button>
       </p>
     <% } %>
@@ -25,8 +25,13 @@
 <header id="backImg">
   <h1><%= content.slogan %></h1>
   <p><%= content.description %></p>
-  <button>Регистрация</button>
+  <% if (user) { %>
+    <button onclick="window.location.href='/catalog'">В каталог</button>
+  <% } else { %>
+    <button onclick="window.location.href='/register'">Регистрация</button>
+  <% } %>
 </header>
+
 
 <div id="name"><h1>Преимущества</h1></div>
 <div id="doublePlus">
@@ -94,15 +99,15 @@
     <% } %>
   </div>
 
-  <div style="text-align: center; margin-bottom: 30px;"><button>В каталог</button></div>
+  <div style="text-align: center; margin-bottom: 30px;"><a href="/catalog"><button>В каталог</button></a></div>
 
   <footer>
     <p>©SinkTravel
-    <a>Каталог</a>
-    <a>Подобрать тур</a>
-    <a>Корзина</a>
-    <a>Поиск</a>
-    <a>Профиль</a></p>
+    <a href="/catalog">Каталог</a>
+    <a href="/take-tour">Подобрать тур</a>
+    <a href="/cart">Корзина</a>
+    <a href="/search">Поиск</a>
+    <a href="/profile">Профиль</a></p>
   </footer>
 </body>
 </html>

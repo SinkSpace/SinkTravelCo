@@ -587,6 +587,10 @@ button:active {
   margin-bottom: 30px;
 }
 
+a:link {
+  text-decoration-line: none;
+}
+
 footer {
   display: flex;
   flex-direction: column;

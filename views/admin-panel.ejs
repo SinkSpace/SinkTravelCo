@@ -94,10 +94,10 @@
 
             <div class="bottom-panel">
               <span>Отелей: <%= city.hotelsCount || 0 %></span>
-<form action="/admin/delete-city/<%= city.id %>" method="POST" 
-      onsubmit="return confirm('Удалить город? Все связанные отели тоже пропадут.')">
+<form action="/admin/delete-city/<%= city.id %>" method="POST" onsubmit="return confirm('Вы точно хотите удалить этот город?');">
   <button type="submit">Удалить</button>
 </form>
+
 
             </div>
           </div>
@@ -125,8 +125,7 @@
 
             <div class="bottom-panel">
               <span>от <%= hotel.pricePerNight?.toFixed(0) || '—' %> ₽ / ночь</span>
-<form action="/admin/delete-hotel/<%= hotel.id %>" method="POST"
-      onsubmit="return confirm('Удалить отель?')">
+<form action="/admin/delete-hotel/<%= hotel.id %>" method="POST" onsubmit="return confirm('Вы точно хотите удалить этот отель?');">
   <button type="submit">Удалить</button>
 </form>
 

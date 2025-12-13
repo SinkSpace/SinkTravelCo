@@ -64,19 +64,20 @@
   </style>
 </head>
 <body>
-  <div class="form-container">
-    <h1>Добавить город</h1>
-    <form action="/add-city" method="POST">
-      <div class="form-group">
-        <label for="name">Название города:</label>
-        <input type="text" name="name" required>
-      </div>
-      <div class="form-group">
-        <label for="country">Страна:</label>
-        <input type="text" id="country" name="country" required>
-      </div>
-      <button type="submit">Сохранить</button>
-    </form>
+<div class="form-container">
+  <h1>Добавить город</h1>
+  <form action="/admin/add-city" method="POST">
+    <div class="form-group">
+      <label for="name">Название города:</label>
+      <input type="text" name="name" required>
+    </div>
+    <div class="form-group">
+      <label for="country">Страна:</label>
+      <input type="text" id="country" name="country" required>
+    </div>
+    <button type="submit">Сохранить</button>
+  </form>
+</div>
   </div>
 </body>
 </html>

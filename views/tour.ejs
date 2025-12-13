@@ -8,75 +8,88 @@
 </head>
 <body>
   <nav>
-    <p><img id="icon" src="/images/icon.svg">
+    <p><a href="/"><img id="icon" src="/images/icon.svg"></a>
     <a href="/take-tour"><button id="takeTour">Подобрать тур</button></a></p>
     <% if (user) { %>
       <p><a href="/search"><img id="active" src="/images/search.svg"></a>
-      <img id="active" src="/images/cart.svg">
-      <img id="active" src="/images/profile.svg" onclick="window.location.href='/logout'"></p>
+      <img id="active" src="/images/profile.svg" onclick="window.location.href='/profile'">
+      <button onclick="window.location.href='/logout'">Выйти</button></p>
     <% } else { %>
       <p>
-        <img id="active" src="/images/search.svg">
+        <a href="/search"><img id="active" src="/images/search.svg"></a>
         <button onclick="window.location.href='/login'">Войти</button>
       </p>
     <% } %>
   </nav>
 
-  <div class="tour-detail-container">
-    <section>
-      <img src="/images/abkhazia.png" class="tour-image-large">
-    </section>
+<div class="tour-detail-container">
+  <section>
+    <img src="/images/abkhazia.png" class="tour-image-large">
+  </section>
 
-    <section>
-      <h1><%= tour.name %></h1>
-      <p><strong>Описание:</strong> <%= tour.description %></p>
+  <section>
+    <h1><%= tour.name %></h1>
+    <p><strong>Описание:</strong> <%= tour.description %></p>
 
-      <div id="cardTable">
-        <section>
-          <h3>Тип</h3>
-          <p><%= tour.type || 'не указано' %></p>
-        </section>
-        <section>
-          <h3>Виза</h3>
-          <p><%= tour.visaRequired ? 'Нужна' : 'Не нужна' %></p>
-        </section>
-        <section>
-          <h3>Перелёт</h3>
-          <p><%= tour.flightType || 'не указан' %></p>
-        </section>
+    <div id="cardTable">
+      <section>
+        <h3>Длительность</h3>
+        <p><%= tour.duration %> дней</p>
+      </section>
+      <section>
+        <h3>Город</h3>
+        <p><%= tour.City ? tour.City.name : 'не указан' %></p>
+      </section>
+      <section>
+        <h3>Отель</h3>
+        <p><%= tour.Hotel ? tour.Hotel.name + ' (' + tour.Hotel.stars + '★)' : 'не указан' %></p>
+      </section>
+    </div>
+
+    <div class="bottom-panel">
+      <div class="tour-price"><%= tour.price.toFixed(2) %>₽</div>
+      <div><button>Купить</button></div>
+    </div>
+  </section>
+</div>
+
+<!-- Похожие туры -->
+<div id="name"><h1>Похожие туры</h1></div>
+<div class="tours-container">
+  <% if (similarTours && similarTours.length > 0) { %>
+    <% similarTours.forEach(similar => { %>
+      <div class="tour-card">
+        <div class="tour-content">
+          <% if (similar.image) { %>
+            <img src="<%= similar.image %>" alt="<%= similar.name %>" class="tour-image">
+          <% } else { %>
+            <div class="tour-image-placeholder">Нет изображения</div>
+          <% } %>
+          <div class="tour-info">
+            <h2><%= similar.name %></h2>
+            <p class="tour-description"><%= similar.description || 'Нет описания' %></p>
+            <div class="bottom-panel">
+              <div class="tour-price"><%= similar.price.toFixed(2) %>₽</div>
+              <div><button onclick="window.location.href='/tour/<%= similar.id %>'">Посмотреть</button></div>
+            </div>
+          </div>
+        </div>
       </div>
+    <% }); %>
+  <% } else { %>
+    <div class="no-tours"><p>Нет похожих туров</p></div>
+  <% } %>
+</div>
 
-      <div id="cardTable">
-        <section>
-          <h3>Цены на месте</h3>
-          <p><%= tour.onSpotPriceType || 'не указано' %></p>
-        </section>
-        <section>
-          <h3>Время поездки</h3>
-          <p><%= tour.tripTime || 'не указано' %></p>
-        </section>
-        <section>
-          <h3>Особенность</h3>
-          <p><%= tour.features || 'не указано' %></p>
-        </section>
-      </div>
-
-      <div class="bottom-panel">
-        <div class="tour-price"><%= tour.price.toFixed(2) %>₽</div>
-        <div><button>Купить</button></div>
-      </div>
-    </section>
-  </div>
 
   <footer>
-    <p>
-      ©SinkTravel
-      <a href="/catalog">Каталог</a>
-      <a href="/take-tour">Подобрать тур</a>
-      <a href="/cart">Корзина</a>
-      <a href="/search">Поиск</a>
-      <a href="/profile">Профиль</a>
-    </p>
+    <p>©SinkTravel
+    <a href="/catalog">Каталог</a>
+    <a href="/take-tour">Подобрать тур</a>
+    <a href="/cart">Корзина</a>
+    <a href="/search">Поиск</a>
+    <a href="/profile">Профиль</a></p>
   </footer>
+
 </body>
 </html>
