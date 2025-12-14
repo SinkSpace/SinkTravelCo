@@ -142,6 +142,7 @@ main button {
 
 .tours-admin-wrapper {
   display: flex;
+  height: 100vh; /* вся высота экрана */
   gap: 20px;
 }
 
@@ -151,7 +152,11 @@ main button {
   flex-direction: column;
   background: #8A8AE0;
   border-radius: 10px;
-  height: 100vh;
+  padding: 10px;
+  position: sticky; /* фиксируем панель */
+  top: 0;           /* от верхнего края окна */
+  height: calc(100vh - 20px); /* чуть меньше, чтобы не выходила за экран */
+  overflow: auto;   /* если панель большая, можно прокручивать */
 }
 
 .tours-subnav input {
@@ -190,6 +195,19 @@ main button {
 
 .tours-subcontent {
   flex: 1;
+  height: 100vh;
+  overflow-y: auto; /* список туров/городов/отелей будет прокручиваться */
+  padding-right: 20px; /* чтобы не было обрезанного скролла */
+}
+
+/* можно добавить плавный скролл */
+.tours-subcontent::-webkit-scrollbar {
+  width: 8px;
+}
+
+.tours-subcontent::-webkit-scrollbar-thumb {
+  background: #8A8AE0;
+  border-radius: 4px;
 }
 
 .city-card {

@@ -204,13 +204,38 @@ app.post('/login', async (req, res) => {
 
   if (!ok) return res.render('login', { error: 'Неверный логин или пароль' });
 
+  // Сохраняем id пользователя в сессии
   req.session.userId = user.id;
-  res.redirect('/catalog');
-});
 
+  // Перенаправляем в зависимости от роли
+  if (user.role === 'admin') {
+    return res.redirect('/admin-panel'); 
+  } else if (user.role === 'moder') {
+    return res.redirect('/moder-panel');
+  } else {
+    return res.redirect('/catalog');
+  }
+});
 
 app.get('/logout', (req, res) => {
   req.session.destroy(() => res.redirect('/'));
+});
+
+app.get('/order/:id', async (req, res) => {
+  const tour = await Tour.findByPk(req.params.id);
+
+  if (!tour) {
+    return res.status(404).render('404');
+  }
+
+  res.render('order', {
+    user: req.user,
+    tour
+  });
+});
+
+app.post('/order/:id', (req, res) => {
+  res.send('Заказ принят. Ожидайте подтверждение модератора');
 });
 
 // =======================

@@ -6,7 +6,6 @@
 
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #333;
   line-height: 1.6;
   min-height: 100vh;
 }
@@ -118,6 +117,7 @@ select {
 .tour-link {
   text-decoration: none;
   color: inherit;
+  width: 680px;
 }
 
 .tours-container {
@@ -156,8 +156,8 @@ select {
 .tour-description {
   color: #64748b;
   font-style: italic;
-  margin-bottom: 1rem;
-  min-height: 60px;
+  height: 70px;
+  margin-bottom: 0;
 }
 
 .tour-meta {
@@ -215,6 +215,95 @@ button:active {
   background: #ef4444;
 }
 
+.order-details {
+  background-color: #EEEEEE;
+  width: 50px;
+  padding: 30px;
+  color: black;
+}
+
+.order-details section {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.order-container {
+  display: flex;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+#personal-data-container {
+  width: 500px;
+}
+
+.tour-card {
+  display: flex;
+  flex-direction: column;
+  max-width: 500px;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  background: #fff;
+}
+
+.payment-methods {
+  background: #EEEEEE;
+  padding: 30px;
+  color: black;
+}
+
+.payment-methods input {
+  width: 20px;
+  height: 20px;
+}
+
+.tour-image {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+}
+.tour-info {
+  padding: 20px;
+}
+.tour-info h2 {
+  margin: 0 0 10px 0;
+}
+.tour-description {
+  margin-bottom: 15px;
+  color: #555;
+}
+.card-details div {
+  margin-bottom: 5px;
+}
+.bottom-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+}
+.quantity-input {
+  width: 60px;
+  padding: 5px;
+  text-align: center;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+button.order-btn {
+  padding: 8px 15px;
+  background-color: #0077ff;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+button.order-btn:hover {
+  background-color: #005fcc;
+}
+
 .no-tours {
   text-align: center;
   padding: 3rem;
@@ -227,13 +316,16 @@ button:active {
   border: 1px solid #e2e8f0;
   padding: 0; 
   border-radius: 0; 
-  height: 300px;
+  height: 100%;
+  max-width: 700px;
 }
 
 .tour-content {
   display: flex;
   flex-direction: row; 
   flex: 1; 
+  max-width: 684px;
+  height: 100%;
 }
 
 .tour-image,
@@ -262,6 +354,7 @@ button:active {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: auto;
 }
 
 .tour-price {
@@ -470,7 +563,7 @@ button:active {
   background: #fafafa;
   padding: 14px;
   border-radius: 10px;
-  border: 1px solid #eee;
+  border: 1px solid #EEEEEE;
 }
 
 .image-gallery {
@@ -515,10 +608,18 @@ button:active {
 
 .search-wrapper {
   display: flex;
-  margin-left: 64px;
-  flex: 1;
-  padding: 1rem;
-  min-height: 300px;
+  gap: 30px;
+}
+
+.filter-panel {
+  flex: 0 0 300px; /* ширина фильтров */
+}
+
+.tours-container {
+  flex: 1; /* занимает остальное место */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
 }
 
 .search-wrapper section {
@@ -530,6 +631,14 @@ button:active {
   width: 250px;
   display: inline-block;
   width: 175px;
+}
+
+.search-filter-panel {
+  margin-left: 64px;
+}
+
+.search-filter-panel button {
+  margin-top: 30px;
 }
 
 .filter-panel {
@@ -550,9 +659,6 @@ button:active {
 
 .take-tour-wrapper section {
   margin-left: 64px;
-}
-
-.take-tour-wrapper p {
   display: flex;
   justify-content: space-between;
 }
@@ -597,7 +703,7 @@ footer {
   align-items: center;
   padding: 1rem;
   gap: 0.5rem;
-  background: #eee;
+  background: #EEEEEE;
 }
 
 footer p {

@@ -70,34 +70,42 @@
 
   <div id="name"><h1>Популярные путёвки</h1></div>
 
-  <div class="tours-container">
-    <% if (tours && tours.length > 0) { %>
-      <% tours.slice(0, 2).forEach(tour => { %>
-      <div class="tour-card">
-        <div class="tour-content">
-          <img src="/images/abkhazia.png" class="tour-image"> <!-- TODO: надо сдел -->
-<!--          <% if (tour.image) { %>
-            <img src="<%= tour.image %>" alt="<%= tour.name %>" class="tour-image">
-          <% } else { %>
-            <div class="tour-image-placeholder">Нет изображения</div>
-          <% } %> -->
-          <div class="tour-info">
-            <h2><%= tour.name %></h2>
-            <p class="tour-description"><%= tour.description || 'Нет описания' %></p>
-            <div class="bottom-panel">
-              <div class="tour-price"><%= tour.price.toFixed(2) %>₽</div>
-              <div><button>Купить</button></div>
+<div class="tours-container" style="flex-wrap: nowrap;">
+  <% if (tours && tours.length > 0) { %>
+    <% tours.slice(0, 2).forEach(tour => { %>
+
+      <a href="/tour/<%= tour.id %>" class="tour-link">
+        <div class="tour-card">
+          <div class="tour-content">
+
+            <img src="/images/abkhazia.png" class="tour-image">
+
+            <div class="tour-info">
+              <h2><%= tour.name %></h2>
+
+              <p class="tour-description">
+                <%= tour.description || 'Нет описания' %>
+              </p>
+
+              <div class="bottom-panel">
+                <div class="tour-price">
+                  <%= tour.price.toFixed(2) %> ₽
+                </div>
+              </div>
             </div>
+
           </div>
         </div>
-      </div>
-      <% }); %>
-    <% } else { %>
-      <div class="no-tours">
-        <p>Пока нет доступных туров</p>
-      </div>
-    <% } %>
-  </div>
+      </a>
+
+    <% }); %>
+  <% } else { %>
+    <div class="no-tours">
+      <p>Пока нет доступных туров</p>
+    </div>
+  <% } %>
+</div>
+
 
   <div style="text-align: center; margin-bottom: 30px;"><a href="/catalog"><button>В каталог</button></a></div>
 
@@ -105,7 +113,6 @@
     <p>©SinkTravel
     <a href="/catalog">Каталог</a>
     <a href="/take-tour">Подобрать тур</a>
-    <a href="/cart">Корзина</a>
     <a href="/search">Поиск</a>
     <a href="/profile">Профиль</a></p>
   </footer>

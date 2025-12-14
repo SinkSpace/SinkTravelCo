@@ -48,14 +48,18 @@
 
     <div class="bottom-panel">
       <div class="tour-price"><%= tour.price.toFixed(2) %>₽</div>
-      <div><button>Купить</button></div>
+                      </div>
+<button onclick="location.href='/order/<%= tour.id %>'">
+  Купить
+</button>
+              </div>
     </div>
   </section>
 </div>
 
 <!-- Похожие туры -->
 <div id="name"><h1>Похожие туры</h1></div>
-<div class="tours-container">
+<div class="tours-container" style="flex-wrap: nowrap;">
   <% if (similarTours && similarTours.length > 0) { %>
     <% similarTours.forEach(similar => { %>
       <div class="tour-card">
@@ -86,7 +90,6 @@
     <p>©SinkTravel
     <a href="/catalog">Каталог</a>
     <a href="/take-tour">Подобрать тур</a>
-    <a href="/cart">Корзина</a>
     <a href="/search">Поиск</a>
     <a href="/profile">Профиль</a></p>
   </footer>

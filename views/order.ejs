@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Оформление заказа — <%= tour.name %></title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+  <nav>
+    <p><a href="/"><img id="icon" src="/images/icon.svg"></a>
+    <a href="/take-tour"><button id="takeTour">Подобрать тур</button></a></p>
+    <% if (user) { %>
+      <p><a href="/search"><img id="active" src="/images/search.svg"></a>
+      <img id="active" src="/images/profile.svg" onclick="window.location.href='/profile'">
+      <button onclick="window.location.href='/logout'">Выйти</button></p>
+    <% } else { %>
+      <p>
+        <a href="/search"><img id="active" src="/images/search.svg"></a>
+        <button onclick="window.location.href='/login'">Войти</button>
+      </p>
+    <% } %>
+  </nav>
+
+  <div class="order-container" style="display: flex; gap: 20px;">
+
+<!-- Карточка тура -->
+<div class="tour-card" style="width: 300px;">
+  <img src="<%= tour.image || '/images/abkhazia.png' %>" class="tour-image" alt="<%= tour.name %>">
+  <div class="tour-info">
+    <h2><%= tour.name %></h2>
+    <p class="tour-description"><%= tour.description || 'Нет описания' %></p>
+    <div class="tour-price"><%= tour.price.toFixed(2) %> ₽</div>
+    <div class="bottom-panel">
+      <div>
+        <label for="quantity"><strong>Количество:</strong></label>
+        <input type="number" id="quantity" class="quantity-input" value="1" min="1">
+      </div>
+      <form action="/order/<%= tour.id %>" method="POST" style="margin:0;">
+        <input type="hidden" name="quantity" id="quantity-hidden" value="1">
+        <button type="submit" class="order-btn">Оформить</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Блок персональных данных и оплаты -->
+<div class="order-details" style="flex: 1;">
+  <h3>Персональные данные</h3>
+  <div id="personal-data-container">
+    <% for (let i = 0; i < 1; i++) { %> <!-- количество форм будет динамически дублироваться через JS по выбранной quantity -->
+      <div class="person-data">
+        <h4>Человек <%= i + 1 %></h4>
+        <section><label>Фамилия: </label><input type="text" name="lastName_<%= i %>" required></section>
+        <section><label>Имя: </label><input type="text" name="firstName_<%= i %>" required></section>
+        <section><label>Отчество: </label><input type="text" name="middleName_<%= i %>"></section>
+        <section><label>Телефон: </label><input type="tel" name="phone_<%= i %>" required></section>
+        <section><label>Почта: </label><input type="email" name="email_<%= i %>" required></section>
+        <section><label>Дата рождения: </label><input type="date" name="dob_<%= i %>" required></section>
+      </div>
+    <% } %>
+  </div>
+
+  </div>
+
+    <div class="payment-methods">
+<h3>Выбор оплаты</h3>
+    <label><input type="radio" name="payment" value="card" checked> Банковская карта</label><br>
+    <label><input type="radio" name="payment" value="paypal"> PayPal</label><br>
+    <label><input type="radio" name="payment" value="cash"> Наличные при встрече</label>
+  </div>
+</div>
+
+  <footer>
+    <p>©SinkTravel
+    <a href="/catalog">Каталог</a>
+    <a href="/take-tour">Подобрать тур</a>
+    <a href="/search">Поиск</a>
+    <a href="/profile">Профиль</a></p>
+  </footer>
+
+  <script>
+    const quantityInput = document.getElementById('quantity');
+    const hiddenInput = document.getElementById('quantity-hidden');
+    const personalContainer = document.getElementById('personal-data-container');
+
+    quantityInput.addEventListener('input', () => {
+      hiddenInput.value = quantityInput.value;
+      // Очищаем текущие формы
+      personalContainer.innerHTML = '';
+      const count = parseInt(quantityInput.value);
+      for (let i = 0; i < count; i++) {
+        const div = document.createElement('div');
+        div.classList.add('person-data');
+        div.innerHTML = `
+          <h4>Человек ${i + 1}</h4>
+          <label>Фамилия: <input type='text' name='lastName_${i}' required></label>
+          <label>Имя: <input type='text' name='firstName_${i}' required></label>
+          <label>Отчество: <input type='text' name='middleName_${i}'></label>
+          <label>Телефон: <input type='tel' name='phone_${i}' required></label>
+          <label>Почта: <input type='email' name='email_${i}' required></label>
+          <label>Дата рождения: <input type='date' name='dob_${i}' required></label>
+        `;
+        personalContainer.appendChild(div);
+      }
+    });
+  </script>
+
+</body>
+</html>
