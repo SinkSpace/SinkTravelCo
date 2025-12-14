@@ -5,6 +5,6 @@ module.exports = (sequelize, DataTypes) => {
     description: { type: DataTypes.TEXT },
     price: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
     duration: { type: DataTypes.INTEGER, allowNull: false },
-    image: { type: DataTypes.STRING }
+    image: { type: DataTypes.STRING, allowNull: true }
   });
 };

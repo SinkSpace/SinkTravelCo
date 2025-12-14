@@ -60,15 +60,15 @@
             <% tours.forEach(tour => { %>
               <div class="tour-card">
                 <div class="tour-content">
-                  <img src="/images/abkhazia.png" class="tour-image">
+                  <img src="<%= tour.image || '/images/zaglushka.png' %>" class="tour-image">
                   <div class="tour-info">
                     <h2><%= tour.name %></h2>
                     <p class="tour-description"><%= tour.description || 'Нет описания' %></p>
                     <div class="bottom-panel">
                       <div class="tour-price"><%= tour.price.toFixed(2) %>₽</div>
                       <a href="/admin/edit-tour/<%= tour.id %>">
-  <button>Редактировать</button>
-</a>
+                        <button>Редактировать</button>
+                      </a>
                     </div>
                   </div>
                 </div>
