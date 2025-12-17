@@ -175,12 +175,12 @@ app.post('/register', async (req, res) => {
 // Профиль пользователя
 // =======================
 app.get('/profile', async (req, res) => {
-  if (!req.user) return res.redirect('/login'); // если не авторизован, кидаем на логин
+  if (!req.user) return res.redirect('/login');
 
-  // Если нужно, можно получить дополнительные данные, например туры пользователя
-  // const userTours = await Tour.findAll({ where: { UserId: req.user.id } });
-
-  res.render('profile', { user: req.user /*, tours: userTours */ });
+  res.render('profile', {
+    user: req.user,
+    tours: [] // просто пустой массив
+  });
 });
 
 // =======================
@@ -192,22 +192,17 @@ app.get('/login', (req, res) => {
 
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
-  console.log('Login attempt:', username, password);
 
   const user = await User.findOne({ where: { username } });
-  console.log('Found user:', user);
 
-  if (!user) return res.render('login', { error: 'Неверный логин или пароль' });
+  if (!user || user.password !== password) {
+    return res.render('login', {
+      error: 'Неверный логин или пароль'
+    });
+  }
 
-  const ok = await bcrypt.compare(password, user.password);
-  console.log('Password match:', ok);
+  req.session.user = user;
 
-  if (!ok) return res.render('login', { error: 'Неверный логин или пароль' });
-
-  // Сохраняем id пользователя в сессии
-  req.session.userId = user.id;
-
-  // Перенаправляем в зависимости от роли
   if (user.role === 'admin') {
     return res.redirect('/admin-panel'); 
   } else if (user.role === 'moder') {
@@ -215,7 +210,9 @@ app.post('/login', async (req, res) => {
   } else {
     return res.redirect('/catalog');
   }
+  
 });
+
 
 app.get('/logout', (req, res) => {
   req.session.destroy(() => res.redirect('/'));
@@ -235,6 +232,12 @@ app.get('/order/:id', async (req, res) => {
 });
 
 app.post('/order/:id', (req, res) => {
+  if (!lastName || !firstName || !phone || !email || !dob) {
+  return res.render('order', {
+    tour,
+    error: 'Не все обязательные поля заполнены'
+  });
+
   res.send('Заказ принят. Ожидайте подтверждение модератора');
 });
 
@@ -331,7 +334,6 @@ app.get('/admin/add-tour', async (req, res) => {
 // POST для добавления тура с файлом
 app.post('/admin/add-tour', upload.single('image'), async (req, res) => {
   try {
-    // req.body теперь доступен, multer распарсил форму
     const { name, description, price, duration, cityId, hotelId, clientId } = req.body;
 
     const newTour = await Tour.create({
@@ -341,7 +343,7 @@ app.post('/admin/add-tour', upload.single('image'), async (req, res) => {
       duration,
       CityId: cityId,
       HotelId: hotelId,
-      ClientId: clientId || null, // если клиента не выбрали
+      ClientId: clientId || null, 
       image: req.file ? '/uploads/' + req.file.filename : null
     });
 

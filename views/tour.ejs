@@ -24,7 +24,7 @@
 
 <div class="tour-detail-container">
   <section>
-    <img src="/images/abkhazia.png" class="tour-image-large">
+    <img src="<%= tour.image || '/images/zaglushka.png' %>" class="tour-image">
   </section>
 
   <section>
@@ -57,18 +57,13 @@
   </section>
 </div>
 
-<!-- Похожие туры -->
 <div id="name"><h1>Похожие туры</h1></div>
 <div class="tours-container" style="flex-wrap: nowrap;">
   <% if (similarTours && similarTours.length > 0) { %>
     <% similarTours.forEach(similar => { %>
       <div class="tour-card">
         <div class="tour-content">
-          <% if (similar.image) { %>
-            <img src="<%= similar.image %>" alt="<%= similar.name %>" class="tour-image">
-          <% } else { %>
-            <div class="tour-image-placeholder">Нет изображения</div>
-          <% } %>
+          <img src="<%= similar.image ? similar.image : '/images/zaglushka.png' %>" alt="<%= similar.name %>" class="tour-image">
           <div class="tour-info">
             <h2><%= similar.name %></h2>
             <p class="tour-description"><%= similar.description || 'Нет описания' %></p>

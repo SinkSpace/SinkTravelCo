@@ -473,6 +473,14 @@ button.order-btn:hover {
     flex: 1; 
 }
 
+.tab-content {
+  display: none; /* скрываем полностью, включая h2 */
+}
+
+.tab-content.active {
+  display: block; /* показываем выбранную вкладку целиком */
+}
+
 #imgIntegration {
   display: flex;
   justify-content: right;
@@ -480,7 +488,7 @@ button.order-btn:hover {
 
 #imgIntegration img {
   width: 1255px;
-  height: 82vh;
+  height: 81.7vh;
 }
 
 #profile-container {

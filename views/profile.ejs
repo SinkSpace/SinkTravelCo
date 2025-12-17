@@ -1,227 +1,201 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Профиль</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Профиль</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <nav>
-    <p><a href="/"><img id="icon" src="/images/icon.svg"></a>
-    <a href="/take-tour"><button id="takeTour">Подобрать тур</button></a></p>
-    <% if (user) { %>
-      <p><a href="/search"><img id="active" src="/images/search.svg"></a>
-      <img id="active" src="/images/profile.svg" onclick="window.location.href='/profile'">
-      <button onclick="window.location.href='/logout'">Выйти</button></p>
-    <% } else { %>
-      <p>
-        <a href="/search"><img id="active" src="/images/search.svg"></a>
-        <button onclick="window.location.href='/login'">Войти</button>
-      </p>
-    <% } %>
-  </nav>
+<nav>
+  <p><a href="/"><img id="icon" src="/images/icon.svg"></a>
+  <a href="/take-tour"><button id="takeTour">Подобрать тур</button></a></p>
+  <% if (user) { %>
+    <p><a href="/search"><img id="active" src="/images/search.svg"></a>
+    <img id="active" src="/images/profile.svg" onclick="window.location.href='/profile'">
+    <button onclick="window.location.href='/logout'">Выйти</button></p>
+  <% } else { %>
+    <p>
+      <a href="/search"><img id="active" src="/images/search.svg"></a>
+      <button onclick="window.location.href='/login'">Войти</button>
+    </p>
+  <% } %>
+</nav>
 
-  <h1 id="name">Профиль</h1>
+<h1 id="name">Профиль</h1>
 
- <div id="profile-container">
-    <div id="settings">
-      <p><button data-tab="personal" class="active">Личные данные</button></p>
-      <p><button data-tab="docs">Документы</button></p>
-      <p><button data-tab="security">Безопасность</button></p>
-      <p><button data-tab="notifications">Уведомления</button></p>
-      <p><button data-tab="payments">Платежи</button></p>
-      <p><button data-tab="bookings">Бронирования</button></p>
-      <p><button data-tab="history">История</button></p>
+<div id="profile-container">
+  <div id="settings">
+    <p><button data-tab="personal" class="active">Личные данные</button></p>
+    <p><button data-tab="docs">Документы</button></p>
+    <p><button data-tab="security">Безопасность</button></p>
+    <p><button data-tab="notifications">Уведомления</button></p>
+    <p><button data-tab="payments">Платежи</button></p>
+    <p><button data-tab="bookings">Бронирования</button></p>
+    <p><button data-tab="history">История</button></p>
+  </div>
+
+  <div id="settings-content">
+    <!-- Личные данные -->
+    <div id="personal" class="tab-content active">
+      <h2>Личные данные</h2>
+      <form method="POST" action="/profile/update-personal">
+        <section>
+          <label>Фамилия</label>
+          <input type="text" name="lastName" value="<%= user.lastName || '' %>">
+        </section>
+        <section>
+          <label>Имя</label>
+          <input type="text" name="firstName" value="<%= user.firstName || '' %>">
+        </section>
+        <section>
+          <label>Отчество</label>
+          <input type="text" name="middleName" value="<%= user.middleName || '' %>">
+        </section>
+        <section>
+          <label>Email</label>
+          <input type="email" name="email" value="<%= user.email || '' %>">
+        </section>
+        <section>
+          <label>Дата рождения</label>
+          <input type="date" name="birthDate" value="<%= user.birthDate || '' %>">
+        </section>
+        <section>
+          <label>Пол</label>
+          <select name="gender">
+            <option value="">Не указан</option>
+            <option value="male" <%= user.gender === 'male' ? 'selected' : '' %>>Мужской</option>
+            <option value="female" <%= user.gender === 'female' ? 'selected' : '' %>>Женский</option>
+          </select>
+        </section>
+        <button type="submit">Сохранить</button>
+      </form>
     </div>
 
-    <div id="settings-content">
-      <div id="personal" class="tab-content active">
-        <h2>Личные данные</h2>
-        <form>
-          <section>
-            <label>Фамилия</label>
-            <input>
-          </section>
-          <section>
-            <label>Имя</label>
-            <input>
-          </section>
-          <section>
-            <label>Отчество</label>
-            <input>
-          </section>
-          <section>
-            <label>Email</label>
-            <input>
-          </section>
-          <section>
-            <label>Дата рождения</label>
-            <input>
-          </section>
-          <section>
-            <label>Пол</label>
-            <input>
-          </section>
-          </form>
-      </div>
-      <div id="docs" class="tab-content">
-        <h2>Документы</h2>
-        <form>
-          <section>
-            <label>Паспорт</label>
-            <input placeholder="Серия и номер">
-          </section>
-          <section>
-            <label>ID карта</label>
-            <input placeholder="Номер">
-          </section>
-        </form>
-      </div>
+    <!-- Документы -->
+    <div id="docs" class="tab-content">
+      <h2>Документы</h2>
+      <form method="POST" action="/profile/update-docs">
+        <section>
+          <label>Паспорт</label>
+          <input type="text" name="passport" placeholder="Серия и номер" value="<%= user.passport || '' %>">
+        </section>
+        <section>
+          <label>ID карта</label>
+          <input type="text" name="idCard" placeholder="Номер" value="<%= user.idCard || '' %>">
+        </section>
+        <button type="submit">Сохранить</button>
+      </form>
+    </div>
 
-      <div id="security" class="tab-content">
-        <h2>Безопасность</h2>
-        <form>
-          <section>
-            <label>Старый пароль</label>
-            <input type="password">
-          </section>
-          <section>
-            <label>Новый пароль</label>
-            <input type="password">
-          </section>
-          <section>
-            <label>Подтверждение нового пароля</label>
-            <input type="password">
-          </section>
-          <button type="submit">Сменить пароль</button>
-        </form>
-      </div>
+    <!-- Безопасность -->
+    <div id="security" class="tab-content">
+      <h2>Безопасность</h2>
+      <form method="POST" action="/profile/change-password">
+        <section>
+          <label>Старый пароль</label>
+          <input type="password" name="oldPassword">
+        </section>
+        <section>
+          <label>Новый пароль</label>
+          <input type="password" name="newPassword">
+        </section>
+        <section>
+          <label>Подтверждение нового пароля</label>
+          <input type="password" name="confirmPassword">
+        </section>
+        <button type="submit">Сменить пароль</button>
+      </form>
+    </div>
 
-      <div id="notifications" class="tab-content">
-        <h2>Уведомления</h2>
-        <form>
-          <section>
-            <label>Email уведомления</label>
-            <input type="checkbox" checked> Включены
-          </section>
-          <section>
-            <label>SMS уведомления</label>
-            <input type="checkbox"> Включены
-          </section>
-          <section>
-            <label>Push уведомления</label>
-            <input type="checkbox" checked> Включены
-          </section>
-        </form>
-      </div>
+    <!-- Уведомления -->
+    <div id="notifications" class="tab-content">
+      <h2>Уведомления</h2>
+      <form method="POST" action="/profile/update-notifications">
+        <section>
+          <label>Email уведомления</label>
+          <input type="checkbox" name="emailNotify" <%= user.emailNotify ? 'checked' : '' %>> Включены
+        </section>
+        <section>
+          <label>SMS уведомления</label>
+          <input type="checkbox" name="smsNotify" <%= user.smsNotify ? 'checked' : '' %>> Включены
+        </section>
+        <section>
+          <label>Push уведомления</label>
+          <input type="checkbox" name="pushNotify" <%= user.pushNotify ? 'checked' : '' %>> Включены
+        </section>
+        <button type="submit">Сохранить</button>
+      </form>
+    </div>
 
-      <div id="payments" class="tab-content">
-        <h2>Платежи</h2>
-        <form>
-          <section>
-            <label>Банковская карта</label>
-            <input placeholder="Номер карты">
-          </section>
-          <section>
-            <label>Срок действия</label>
-            <input placeholder="MM/YY">
-          </section>
-          
-          <section>
-            <label>CVC/CVV</label>
-            <input placeholder="***">
-          </section>
-          <button type="submit">Сохранить</button>
-        </form>
+    <!-- Платежи -->
+    <div id="payments" class="tab-content">
+      <h2>Платежи</h2>
+      <form method="POST" action="/profile/update-payments">
+        <section>
+          <label>Банковская карта</label>
+          <input type="text" name="cardNumber" placeholder="Номер карты" value="<%= user.cardNumber || '' %>">
+        </section>
+        <section>
+          <label>Срок действия</label>
+          <input type="text" name="cardExpiry" placeholder="MM/YY" value="<%= user.cardExpiry || '' %>">
+        </section>
+        <section>
+          <label>CVC/CVV</label>
+          <input type="text" name="cardCvc" placeholder="***" value="<%= user.cardCvc || '' %>">
+        </section>
+        <button type="submit">Сохранить</button>
+      </form>
+    </div>
+
+    <!-- Бронирования -->
+    <div id="bookings" class="tab-content">
+      <h2>Бронирования</h2>
+      <div class="tours-container">
+          <p>Бронирований нет</p>
       </div>
-      <div id="bookings" class="tab-content">
-        <h2>Бронирования</h2>
-          <div class="tours-container" style="display: inline;">
-          <% if (tours && tours.length > 0) { %>
-            <% tours.slice(0, 2).forEach(tour => { %>
-            <div class="tour-card">
-              <div class="tour-content">
-                <img src="/images/abkhazia.png" class="tour-image"> <!-- TODO: надо сдел -->
-      <!--          <% if (tour.image) { %>
-                  <img src="<%= tour.image %>" alt="<%= tour.name %>" class="tour-image">
-                <% } else { %>
-                  <div class="tour-image-placeholder">Нет изображения</div>
-                <% } %> -->
-                <div class="tour-info">
-                  <h2><%= tour.name %></h2>
-                  <p class="tour-description"><%= tour.description || 'Нет описания' %></p>
-                  <div class="bottom-panel">
-                    <div class="tour-price"><%= tour.price.toFixed(2) %>₽</div>
-                    <div><button>Купить</button></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <% }); %>
-          <% } else { %>
-            <div class="no-tours">
-              <p>Пока нет доступных туров</p>
-            </div>
-          <% } %>
-        </div>
-      </div>
-      <div id="history" class="tab-content">
-        <h2>История</h2>
-          <div class="tours-container" style="display: inline;">
-          <% if (tours && tours.length > 0) { %>
-            <% tours.slice(0, 2).forEach(tour => { %>
-            <div class="tour-card">
-              <div class="tour-content">
-                <img src="/images/abkhazia.png" class="tour-image"> <!-- TODO: надо сдел -->
-      <!--          <% if (tour.image) { %>
-                  <img src="<%= tour.image %>" alt="<%= tour.name %>" class="tour-image">
-                <% } else { %>
-                  <div class="tour-image-placeholder">Нет изображения</div>
-                <% } %> -->
-                <div class="tour-info">
-                  <h2><%= tour.name %></h2>
-                  <p class="tour-description"><%= tour.description || 'Нет описания' %></p>
-                  <div class="bottom-panel">
-                    <div class="tour-price"><%= tour.price.toFixed(2) %>₽</div>
-                    <div><button>Купить</button></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <% }); %>
-          <% } else { %>
-            <div class="no-tours">
-              <p>Пока нет доступных туров</p>
-            </div>
-          <% } %>
-        </div>
+    </div>
+
+    <!-- История -->
+    <div id="history" class="tab-content">
+      <h2>История</h2>
+      <div class="tours-container">
+          <p>История пустая</p>
       </div>
     </div>
   </div>
+</div>
 
-  <footer>
-    <p>©SinkTravel
+<footer>
+  <p>©SinkTravel
     <a href="/catalog">Каталог</a>
     <a href="/take-tour">Подобрать тур</a>
     <a href="/search">Поиск</a>
-    <a href="/profile">Профиль</a></p>
-  </footer>
+    <a href="/profile">Профиль</a>
+  </p>
+</footer>
 
 <script>
+document.addEventListener('DOMContentLoaded', () => {
   const buttons = document.querySelectorAll('#settings button');
   const contents = document.querySelectorAll('.tab-content');
 
+  // скрываем все вкладки при загрузке
+  contents.forEach(c => c.style.display = 'none');
+  if (contents[0]) contents[0].style.display = 'block';
+
   buttons.forEach(btn => {
     btn.addEventListener('click', () => {
+      contents.forEach(c => c.style.display = 'none');
+      const tabId = btn.getAttribute('data-tab');
+      const activeTab = document.getElementById(tabId);
+      if(activeTab) activeTab.style.display = 'block';
+
       buttons.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-
-      contents.forEach(c => c.classList.remove('active'));
-      const tab = btn.getAttribute('data-tab');
-      document.getElementById(tab).classList.add('active');
     });
   });
+});
 </script>
 </body>
 </html>

@@ -126,7 +126,7 @@
       <!-- Город -->
       <div class="form-group">
         <label>Город</label>
-        <select name="cityId" required>
+        <select name="cityId" style="height: 50px;" required>
           <% cities.forEach(city => { %>
             <option value="<%= city.id %>" 
               <%= city.id === tour.city_id ? 'selected' : '' %>>
@@ -139,7 +139,7 @@
       <!-- Отель -->
       <div class="form-group">
         <label>Отель</label>
-        <select name="hotelId" required>
+        <select name="hotelId" style="height: 50px;" required>
           <% hotels.forEach(hotel => { %>
             <option value="<%= hotel.id %>"
               <%= hotel.id === tour.hotel_id ? 'selected' : '' %>>
@@ -152,7 +152,7 @@
       <!-- Клиент -->
       <div class="form-group">
         <label>Клиент (необязательно)</label>
-        <select name="clientId">
+        <select name="clientId" style="height: 50px;">
           <option value="">— без клиента —</option>
           <% clients.forEach(client => { %>
             <option value="<%= client.id %>"
@@ -166,7 +166,7 @@
       <!-- Картинка -->
       <div class="form-group">
         <label>Изображение тура</label>
-        <input type="file" name="image" accept="image/*">
+        <input type="file" name="image" style="height: 50px;" accept="image/*">
 
         <% if (tour.image) { %>
           <div class="preview">
