@@ -110,6 +110,45 @@ app.get('/search', async (req, res) => {
   }
 });
 
+app.post('/search', async (req, res) => {
+  try {
+    const { cityId, duration, hotelId, hotelStars, minPrice, maxPrice } = req.body;
+
+    const filter = {};
+
+    if (cityId) filter.CityId = cityId;
+    if (duration) filter.duration = duration;
+    if (hotelId) filter.HotelId = hotelId;
+
+    if (minPrice || maxPrice) {
+      filter.price = {};
+      if (minPrice) filter.price[Op.gte] = Number(minPrice);
+      if (maxPrice) filter.price[Op.lte] = Number(maxPrice);
+    }
+
+    if (hotelStars) {
+      filter['$Hotel.stars$'] = hotelStars;
+    }
+
+    const cities = await City.findAll();
+    const hotels = await Hotel.findAll();
+
+    const tours = await Tour.findAll({
+      where: filter,
+      include: [City, Hotel]
+    });
+
+    res.render('search', {
+      cities,
+      hotels,
+      tours
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Ошибка поиска');
+  }
+});
+
 app.get('/take-tour', async (req, res) => {
   const cities = await City.findAll();
   const hotels = await Hotel.findAll();
@@ -118,7 +157,6 @@ app.get('/take-tour', async (req, res) => {
   res.render('take-tour', { user: req.user, cities, hotels, tours });
 });
 
-// POST: фильтрация туров
 app.post('/take-tour', async (req, res) => {
   const { cityId, duration, hotelId, hotelStars, minPrice, maxPrice } = req.body;
 
@@ -194,24 +232,23 @@ app.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
   const user = await User.findOne({ where: { username } });
-
-  if (!user || user.password !== password) {
-    return res.render('login', {
-      error: 'Неверный логин или пароль'
-    });
+  if (!user) {
+    return res.render('login', { error: 'Неверный логин или пароль' });
   }
 
-  req.session.user = user;
-
-  if (user.role === 'admin') {
-    return res.redirect('/admin-panel'); 
-  } else if (user.role === 'moder') {
-    return res.redirect('/moder-panel');
-  } else {
-    return res.redirect('/catalog');
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    return res.render('login', { error: 'Неверный логин или пароль' });
   }
-  
+
+  req.session.userId = user.id;
+
+  if (user.role === 'admin') return res.redirect('/admin-panel');
+  if (user.role === 'moder') return res.redirect('/moder-panel');
+
+  res.redirect('/catalog');
 });
+
 
 
 app.get('/logout', (req, res) => {
@@ -237,9 +274,9 @@ app.post('/order/:id', (req, res) => {
     tour,
     error: 'Не все обязательные поля заполнены'
   });
-
+}
   res.send('Заказ принят. Ожидайте подтверждение модератора');
-});
+})
 
 // =======================
 // Админ-панель

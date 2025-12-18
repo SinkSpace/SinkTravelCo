@@ -57,7 +57,30 @@ const tourController = {
         title: 'Ошибка'
       });
     }
+  },
+
+  searchTours: async (req, res) => {
+  try {
+    const { cityId, hotelId, minPrice, maxPrice } = req.body;
+
+    const where = {};
+    if (cityId) where.cityId = cityId;
+    if (hotelId) where.hotelId = hotelId;
+    if (minPrice) where.price = { ...where.price, $gte: parseFloat(minPrice) };
+    if (maxPrice) where.price = { ...where.price, $lte: parseFloat(maxPrice) };
+
+    const tours = await Tour.findAll({
+      where,
+      include: [City, Hotel, Client],
+    });
+
+    res.render('search', { tours, user: req.session.user, cities: await City.findAll(), hotels: await Hotel.findAll(), title: 'Поиск туров' });
+  } catch (error) {
+    console.error('Error searching tours:', error);
+    res.status(500).render('error', { message: 'Ошибка поиска туров', title: 'Ошибка' });
   }
+}
+
 };
 
 module.exports = tourController;
